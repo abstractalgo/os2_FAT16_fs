@@ -1,0 +1,26 @@
+
+PARTITION
+- kreiranje
+- dohvatanje opstih informacija
+- citanje klastera na zadatom mestu
+- pisanje klastera za zadataog mesta iz memorije
+
+________________________________________________________________________________
+
+FILE SYSTEM
+- mount/unmount particija
+- rad sa fajloviam i direktorijumima
+
+- opste informacije o fajl sistemu (za zadatu particiju)
+- formatiranje particije
+- ispitivanje psotojanja fajla ili direktorijuma
+- brisanje i otvaranje fajla
+- operacije sa direktorijumima
+
+________________________________________________________________________________
+
+FILE
+- citanje i upis niza bajtova od zadate pozicije
+- get, check, set carot-a fajla (po jedna za svaku nit)
+- brisanje sadrzaja od carot-a do kraja fajla
+- all-thread close fajla
