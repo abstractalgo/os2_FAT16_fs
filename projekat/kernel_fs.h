@@ -6,16 +6,17 @@
 #include "windows.h"
 #include "newdisk.h"
 
-struct DiskDesc
-{
-    Disk* disk;
-    bool used;
-};
-
-
 class KernelFS
 {
-    DiskDesc disks[26];
+    struct DiskDesc
+    {
+        Disk* disk;
+        bool used;
+        DiskDesc()
+            : used(false)
+            , disk(0)
+        {}
+    } disks[26];
 
     KernelFS();
 	~KernelFS();

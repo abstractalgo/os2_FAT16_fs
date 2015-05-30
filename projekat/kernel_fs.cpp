@@ -54,7 +54,14 @@ char KernelFS::format(char part)
 
     // TODO: blokiranje niti dok se ne zatvore svi fajlovi
 
+    Partition* p = disks[idx].disk->partition;
+    // formatiranje particije na disku
     char res = ::format(*(disks[idx].disk));
+    // re-ucitavanje podataka u memoriju
+    delete disks[idx].disk;
+    disks[idx].disk = new Disk(p);
+    tree(*disks[idx].disk);
+    return res;
 }
 
 /*

@@ -22,11 +22,11 @@ int main(int argc, char** argv)
 
     char disk1, disk2;
 
-    /*MARK("Mount 1");
+    MARK("Mount 1");
     disk1 = FS::mount(p1);
 
     MARK("Format 1");
-    FS::format(disk1);*/
+    FS::format(disk1);
 
     //MARK("Mount 2");
     //disk2 = FS::mount(p2);
@@ -39,8 +39,8 @@ int main(int argc, char** argv)
     FS::createDir("A:\\\\dada");
     printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");*/
 
-    /*MARK("Unmount 1");
-    FS::unmount(disk1);*/
+    MARK("Unmount 1");
+    FS::unmount(disk1);
     /*MARK("Unmount 2");
     FS::unmount(disk2);*/
 
@@ -54,45 +54,6 @@ int main(int argc, char** argv)
     PathParser p;
     parse(p, p_a_t_h);
     printf("** %s\n", isValid(p)?"validno":"nevalidno");
-#endif
-
-//#define testcache
-#ifdef testcache
-    CacheLRU c(CACHE_SIZE);
-    debug_write(c);
-
-    writeCache(c, 4, "1");
-    debug_write(c);
-
-    writeCache(c, 5, "2");
-    debug_write(c);
-
-    writeCache(c, 4, "3");
-    debug_write(c);
-
-    readCache(c, 5);
-    debug_write(c);
-
-    writeCache(c, 6, "4");
-    debug_write(c);
-
-    readCache(c, 5);
-    debug_write(c);
-
-    readCache(c, 4);
-    debug_write(c);
-
-    writeCache(c, 7, "5");
-    debug_write(c);
-
-    writeCache(c, 8, "6");
-    debug_write(c);
-
-    writeCache(c, 9, "7");
-    debug_write(c);
-
-    readCache(c, 8);
-    debug_write(c);
 #endif
 
 	getchar();

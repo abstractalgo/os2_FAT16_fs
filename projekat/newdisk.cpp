@@ -15,14 +15,25 @@ char format(Disk& _d)
     buffer[1] = dataClsCnt;
     buffer[2] = 0;
     buffer[3] = 0;
+    _d.partition->writeCluster(0, w_buffer);
 
-    _d.meta.freeNode    = buffer[0];
-    _d.meta.fatSize     = buffer[1];
-    _d.meta.rootDir     = buffer[2];
-    _d.meta.rootSize    = buffer[3];
+    // formatiranje FAT tabele
+    ClusterNo left = dataClsCnt;
+    for (ClusterNo cid = 0; cid < dataClsCnt; cid++)
+    {
+        for (ClusterNo i = 0; i < 512; i++)
+        {
+            buffer[i] = (cid * 512) + i;
+            if (cid * 512 + i == dataClsCnt)
+            {
+                buffer[i] = 0;
+                break;
+            }
+        }
+        _d.partition->writeCluster(1+cid, w_buffer);
+    }
 
-    writeCluster(_d, 0, w_buffer);
-
+    return 0;
 }
 
 char release(Disk& _d)
@@ -90,7 +101,7 @@ void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
 void write(Disk& _d, Entry& _e, uint8_t _level)
 {
     for (uint8_t i = 0; i<_level; i++) putchar('-');
-    printf("'%.8s.%.3s' (%s, %d, %d)", _e.name, _e.ext, _e.attributes == 0x01 ? "fajl" : (_e.attributes == 0x02 ? "poddir" : (_e.attributes == 0x03 ? "rootdir" : "unknown")), _e.firstCluster, _e.size);
+    printf("'%.8s.%.3s' (%s, %d, %d)\n", _e.name, _e.ext, _e.attributes == 0x01 ? "fajl" : (_e.attributes == 0x02 ? "poddir" : (_e.attributes == 0x03 ? "rootdir" : "unknown")), _e.firstCluster, _e.size);
 
     // ako je folder, nastavi ispis rekurzivno
     if (_e.attributes > 1)

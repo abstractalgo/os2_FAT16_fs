@@ -2,12 +2,12 @@
 #define _newdisk_h_
 
 #include "part.h"
-#include "kernel_fs.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include "cache.h"
+#include "fs.h"
 #include "pathparser.h"
 
 #define SOCL sizeof(ClusterNo)
