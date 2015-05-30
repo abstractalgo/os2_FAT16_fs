@@ -5,6 +5,7 @@
 #include "fs.h"
 #include "kernel_fs.h"
 #include "pathparser.h"
+#include "cache.h"
 
 #define MARK(t) printf("--- "t" ---\n")
 
@@ -49,12 +50,39 @@ int main(int argc, char** argv)
     delete p2;
 #endif
 
-#define testpathparser
+//#define testpathparser
 #ifdef testpathparser
 
     PathParser p;
     parse(p, p_a_t_h);
     printf("** %s\n", isValid(p)?"validno":"nevalidno");
+#endif
+
+//#define testcache
+#ifdef testcache
+    CacheLRU c(CACHE_SIZE);
+    debug_write(c);
+
+    write(c, 4, "1");
+    debug_write(c);
+
+    write(c, 5, "2");
+    debug_write(c);
+
+    write(c, 4, "3");
+    debug_write(c);
+
+    read(c, 5);
+    debug_write(c);
+
+    write(c, 6, "4");
+    debug_write(c);
+
+    read(c, 5);
+    debug_write(c);
+
+    read(c, 4);
+    debug_write(c);
 #endif
 
 	getchar();

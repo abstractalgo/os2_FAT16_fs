@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "cache.h
+#include "cache.h"
 
 #define SOCL sizeof(ClusterNo)
 
@@ -33,6 +33,7 @@ struct Disk
     CacheLRU cache;
 
     Disk(Partition* _p)
+        : cache(CACHE_SIZE)
     {
         char w_buffer[2048];
         ClusterNo* buffer = (ClusterNo*)w_buffer;
@@ -72,6 +73,5 @@ int format(Disk& d);
 int readCluster(Disk& _d, ClusterNo _id, char* _buffer);
 int writeCluster(Disk& _d, ClusterNo _id, const char* _buffer);
 bool getEntry(Disk& _d, Entry& _e);
-
 
 #endif

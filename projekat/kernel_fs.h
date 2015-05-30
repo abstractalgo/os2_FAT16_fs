@@ -5,7 +5,7 @@
 #include "part.h"
 #include "windows.h"
 #include <stdio.h>
-#include "newdisk.h"
+#include "disk.h"
 #include <string.h>
 
 #define test(exp) if (!(exp)) fprintf(stderr,"Assert failed: %s\nFile: %s\nLine: %d\n", (#exp),__FILE__,__LINE__)
