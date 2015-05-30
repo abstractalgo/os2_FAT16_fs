@@ -82,5 +82,6 @@ bool getEntry(Disk& _d, Entry& _e);
 void listDir(Disk& _d, Entry& _dir, Entry *& _entries);
 void write(Disk& _d, Entry& _e, uint8_t _level);
 void tree(Disk& _d);
+void tree(char c);
 
 #endif

@@ -32,7 +32,7 @@ class KernelFS
 	char createDir(char* dirname);
 	char deleteDir(char* dirname);
 	char readDir(char* dirname, EntryNum n, Entry &e);
-	
+
 	friend class FS;
 };
 
