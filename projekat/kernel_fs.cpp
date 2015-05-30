@@ -131,7 +131,42 @@ pravi folder
 */
 char KernelFS::createDir(char* dirname)
 {
+    PathParser ppath;
+    parse(ppath, dirname);
+    int idx = ppath.disk - 65;
+    if (idx<0 || idx>25 || false == disks[idx].used)
+        return 0;
 
+    Disk& d = *disks[idx].disk;
+    Entry e;
+
+    // nadji parent folder
+    if (getEntry(d, e, combine(ppath, ppath.partsNum - 1)))
+    {
+        // napravi novi entry
+        Entry newFolder;
+        newFolder.attributes = 0x02;
+        newFolder.firstCluster = allocate(d);
+        d.FAT[newFolder.firstCluster] = 0;
+        memcpy(newFolder.name, ppath.parts[ppath.partsNum - 1], SOC*strlen(ppath.parts[ppath.partsNum - 1]));
+        newFolder.size = 0;
+
+        // ima mesta u trenutnom klasteru
+        if (e.size==0 && e.size % 102 != 0)
+        {
+            // nadji poslednji klaster
+            ClusterNo cid = d.FAT[e.firstCluster];
+            while (d.FAT[cid] != 0) cid = d.FAT[cid];
+            // procitaj klaster
+            char* w_buffer = new char[2048];
+            Entry* entries = (Entry*)w_buffer;
+            readCluster(d, cid, w_buffer);
+            // mesto za smestanje entry-ja
+            entries[e.size % 102] = newFolder;
+            writeCluster(d, cid, w_buffer);
+        }
+    }
+    
 	return 1;
 }
 
@@ -143,6 +178,21 @@ char KernelFS::deleteDir(char* dirname)
 {
     // obrisi ga iz parent foldera
     // nadovezi *free
+
+    PathParser ppath;
+    parse(ppath, dirname);
+    int idx = ppath.disk - 65;
+    if (idx<0 || idx>25 || false == disks[idx].used)
+        return 0;
+
+    Disk& d = *disks[idx].disk;
+    Entry e;
+
+    // nadji parent folder
+    if (getEntry(d, e, combine(ppath, ppath.partsNum - 1)))
+    {
+
+    }
 	return 0;
 }
 

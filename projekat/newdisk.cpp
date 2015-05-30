@@ -23,7 +23,7 @@ char format(Disk& _d)
     {
         for (ClusterNo i = 0; i < 512; i++)
         {
-            buffer[i] = (cid * 512) + i;
+            buffer[i] = (cid * 512) + i + 1;
             if (cid * 512 + i == dataClsCnt)
             {
                 buffer[i] = 0;
@@ -51,7 +51,7 @@ int readCluster(Disk& _d, ClusterNo _id, char* _buffer)
         return 1;
     }
 
-    int t = _d.partition->readCluster(_id, _buffer);
+    int t = _d.partition->readCluster(offset(_d)+_id, _buffer);
     writeCache(_d.cache, _id, _buffer);
     return t;
 }
@@ -59,7 +59,7 @@ int readCluster(Disk& _d, ClusterNo _id, char* _buffer)
 int writeCluster(Disk& _d, ClusterNo _id, const char* _buffer)
 {
     writeCache(_d.cache, _id, _buffer);
-    return _d.partition->writeCluster(_id, _buffer);
+    return _d.partition->writeCluster(offset(_d)+_id, _buffer);
 }
 
 bool matchName(Entry& e, char* name)
@@ -179,4 +179,16 @@ void tree(Disk& _d)
     dir.size = _d.meta.rootSize;
 
     write(_d, dir, 0);
+}
+
+ClusterNo offset(Disk& _d)
+{
+    return (_d.meta.fatSize + 511) / 512;
+}
+
+ClusterNo allocate(Disk& _d)
+{
+    ClusterNo freeNode = _d.meta.freeNode;
+    _d.meta.freeNode = _d.FAT[_d.meta.freeNode];
+    return /*offset(_d) +*/ freeNode;
 }

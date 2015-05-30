@@ -79,8 +79,10 @@ char format(Disk& _d);
 bool getEntry(Disk& _d, Entry& _e, char* _fname);
 
 // helper
+ClusterNo allocate(Disk& _d);
 void listDir(Disk& _d, Entry& _dir, Entry *& _entries);     // pravi niz entry-ja za zadati ulaz
 void tree(Disk& _d);                                        // drvo
 bool matchName(Entry& e, char* name);                       // pomocno
+ClusterNo offset(Disk& _d);
 
 #endif
