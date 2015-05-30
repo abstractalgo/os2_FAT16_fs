@@ -78,6 +78,7 @@
     <ClInclude Include="kernel_file.h" />
     <ClInclude Include="kernel_fs.h" />
     <ClInclude Include="part.h" />
+    <ClInclude Include="pathparser.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="part.lib" />
