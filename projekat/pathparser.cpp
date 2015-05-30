@@ -14,11 +14,11 @@ bool parse(PathParser& _p, const char* _path, bool _zt)
     {
         uint16_t old_i = i;
         // get to the end of the string or the separator
-        while (i < l && _path[i] != '\\') i++;
+        while (i < l && _path[i] != '\\' && _path[i]!='\0') i++;
 
         // allocate memory and copy data
         _p.parts = (char**)realloc(_p.parts, (_p.partsNum + 1) * SOCP);
-        _p.parts[_p.partsNum] = (char*)malloc(SOC*(i - old_i + _zt ? 1 : 0));
+        _p.parts[_p.partsNum] = (char*)malloc(SOC*(i - old_i + (_zt ? 1 : 0)));
         memcpy(_p.parts[_p.partsNum], _path + old_i, SOC*(i - old_i));
         if (_zt) _p.parts[_p.partsNum][i - old_i] = '\0';
 
@@ -28,7 +28,6 @@ bool parse(PathParser& _p, const char* _path, bool _zt)
 
     if (!isValid(_p))
     {
-        delete &_p;
         return false;
     }
 

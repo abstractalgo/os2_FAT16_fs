@@ -43,7 +43,6 @@ char KernelFS::unmount(char part)
 }
 
 /*
--------------- TODO -------------- TODO --------------
 formatira particiju/disk
 */
 char KernelFS::format(char part)
@@ -60,17 +59,70 @@ char KernelFS::format(char part)
     // re-ucitavanje podataka u memoriju
     delete disks[idx].disk;
     disks[idx].disk = new Disk(p);
-    tree(*disks[idx].disk);
     return res;
 }
 
+static bool matchName(Entry& e, char* name)
+{
+    int i = 0, j = 0;
+    bool tacka = false;
+    while (name[i] != '\0')
+    {
+        if (name[i] == '.')
+        {
+            tacka = true;
+            j = 0;
+            i++;
+        }
+        if ((tacka && e.ext[j] != name[i]) ||
+            (!tacka && e.name[j] != name[i]))
+            return false;
+        j++;
+        i++;
+    }
+    return true;
+}
+
 /*
--------------- TODO -------------- TODO --------------
 proverava posotjanje fajla/foldera sa zadatom putanjom
 */
 char KernelFS::doesExist(char* fname)
 {
-    return 0;
+    PathParser ppath;
+    parse(ppath, fname);
+    int idx = ppath.disk - 65;
+    if (idx<0 || idx>25 || false == disks[idx].used)
+        return 0;
+
+    Disk& d = *disks[idx].disk;
+
+    Entry dir;
+    dir.attributes = 0x03;
+    dir.firstCluster = d.meta.rootDir;
+    dir.size = d.meta.rootSize;
+
+    bool fnd = false;
+    for (uint8_t i = 0; i < ppath.partsNum; i++)
+    {
+        if (dir.size == 0 || (i==ppath.partsNum-1 && dir.attributes==0x01))
+            return 0;
+        Entry* entries = new Entry[dir.size];
+        listDir(d, dir, entries);
+        fnd = false;
+        for (uint8_t eid = 0; eid < dir.size; eid++)
+        {
+            if (matchName(entries[eid], ppath.parts[i]))
+            {
+                dir = entries[eid];
+                fnd = true;
+                break;
+            }
+        }
+        delete[] entries;
+        if (!fnd) return 0;
+    }
+
+    return 1;
 }
 
 /*

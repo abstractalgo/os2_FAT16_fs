@@ -8,6 +8,7 @@
 
 class KernelFS
 {
+public:
     struct DiskDesc
     {
         Disk* disk;
@@ -21,12 +22,12 @@ class KernelFS
     KernelFS();
 	~KernelFS();
 
-	char mount(Partition* partition);
-	char unmount(char part);
-	char format(char part);
+	char mount(Partition* partition);   // uradjeno (bez MT)
+	char unmount(char part);            // uradjeno (bez MT)
+	char format(char part);             // uradjeno (bez MT)
 
-	char doesExist(char* fname);
-	File* open(char* fname, char mode);
+	char doesExist(char* fname);        // uradjeno
+	File* open(char* fname, char mode); // (bez MT)
 	char deleteFile(char* fname);
 
 	char createDir(char* dirname);

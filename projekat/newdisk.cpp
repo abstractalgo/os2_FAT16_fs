@@ -33,7 +33,7 @@ char format(Disk& _d)
         _d.partition->writeCluster(1+cid, w_buffer);
     }
 
-    return 0;
+    return 1;
 }
 
 char release(Disk& _d)

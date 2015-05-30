@@ -37,7 +37,7 @@ public:
 
 protected:
 	FS();
-    
+public:
     static KernelFS *myImpl;
 };
 

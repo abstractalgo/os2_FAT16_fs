@@ -11,6 +11,8 @@
 
 #define p_a_t_h "X:\\huehue\\hue\\3\\cetiri.pet"
 
+#define TREEDIR(c) tree(*FS::myImpl->disks[c-65].disk)
+
 int main(int argc, char** argv)
 {
 
@@ -28,16 +30,18 @@ int main(int argc, char** argv)
     MARK("Format 1");
     FS::format(disk1);
 
+    TREEDIR(disk1);
+
     //MARK("Mount 2");
     //disk2 = FS::mount(p2);
 
     /*MARK("Format 2");
     FS::format(disk2);
 
-    MARK("Creating dir");
+    MARK("Creating dir");*/
     printf("Da li postoji putanja A:\\? %s.\n", FS::doesExist("A:\\") ? "Da" : "Ne");
-    FS::createDir("A:\\\\dada");
-    printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");*/
+    /*FS::createDir("A:\\\\dada");*/
+    printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
 
     MARK("Unmount 1");
     FS::unmount(disk1);
