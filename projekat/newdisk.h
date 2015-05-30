@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "cache.h"
+#include "pathparser.h"
 
 #define SOCL sizeof(ClusterNo)
 
@@ -69,9 +70,17 @@ struct Disk
     }
 };
 
-int format(Disk& d);
 int readCluster(Disk& _d, ClusterNo _id, char* _buffer);
 int writeCluster(Disk& _d, ClusterNo _id, const char* _buffer);
+
+char release(Disk& _d);
+char format(Disk& _d);
+
 bool getEntry(Disk& _d, Entry& _e);
+
+// helper
+void listDir(Disk& _d, Entry& _dir, Entry *& _entries);
+void write(Disk& _d, Entry& _e, uint8_t _level);
+void tree(Disk& _d);
 
 #endif

@@ -75,7 +75,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cache.h" />
-    <ClInclude Include="disk.h" />
     <ClInclude Include="docs.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="fs.h" />

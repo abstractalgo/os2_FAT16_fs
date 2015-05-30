@@ -1,6 +1,6 @@
 #include "cache.h"
 
-char* read(CacheLRU& _cache, ClusterNo _id)
+char* readCache(CacheLRU& _cache, ClusterNo _id)
 {
     CacheRecord* temp = _cache.root;
     uint8_t i = 0;
@@ -29,7 +29,7 @@ char* read(CacheLRU& _cache, ClusterNo _id)
     return 0;
 }
 
-void write(CacheLRU& _cache, ClusterNo _id, char* _buffer)
+void writeCache(CacheLRU& _cache, ClusterNo _id, const char* _buffer)
 {
     CacheRecord* temp = _cache.root;
     uint8_t i = 0;
@@ -44,22 +44,25 @@ void write(CacheLRU& _cache, ClusterNo _id, char* _buffer)
             // move
             if (_cache.root != temp)
             {
-                // odvezi
                 temp->prev->next = temp->next;
                 temp->next->prev = temp->prev;
-                // privezi
                 _cache.root->prev->next = temp;
                 temp->prev = _cache.root->prev;
                 _cache.root->prev = temp;
                 temp->next = _cache.root;
-                // root
                 _cache.root = temp;
             }
-            break;
+            return;
         }
         temp = temp->next;
         i++;
     }
+
+    // not in the cache
+    temp = _cache.root->prev;
+    memcpy(temp->buffer, _buffer, BUFF_SIZE);
+    temp->id = _id;
+    _cache.root = temp;
 }
 
 void debug_write(CacheLRU& _cache)

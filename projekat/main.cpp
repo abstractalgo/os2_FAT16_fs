@@ -14,37 +14,35 @@
 int main(int argc, char** argv)
 {
 
-//#define testapp
+#define testapp
 #ifdef testapp
-    Partition 
-        *p1 = new Partition("p1.ini"),
-        *p2 = new Partition("p2.ini");
 
-    char
-        disk1,
-        disk2;
+    Partition *p1 = new Partition("p1.ini");
+    Partition *p2 = new Partition("p2.ini");
 
-    MARK("Mount 1");
+    char disk1, disk2;
+
+    /*MARK("Mount 1");
     disk1 = FS::mount(p1);
 
     MARK("Format 1");
-    FS::format(disk1);
+    FS::format(disk1);*/
 
-    MARK("Mount 2");
-    disk2 = FS::mount(p2);
+    //MARK("Mount 2");
+    //disk2 = FS::mount(p2);
 
-    MARK("Format 2");
+    /*MARK("Format 2");
     FS::format(disk2);
 
     MARK("Creating dir");
     printf("Da li postoji putanja A:\\? %s.\n", FS::doesExist("A:\\") ? "Da" : "Ne");
     FS::createDir("A:\\\\dada");
-    printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
+    printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");*/
 
-    MARK("Unmount 1");
-    FS::unmount(disk1);
-    MARK("Unmount 2");
-    FS::unmount(disk2);
+    /*MARK("Unmount 1");
+    FS::unmount(disk1);*/
+    /*MARK("Unmount 2");
+    FS::unmount(disk2);*/
 
     delete p1;
     delete p2;
@@ -63,25 +61,37 @@ int main(int argc, char** argv)
     CacheLRU c(CACHE_SIZE);
     debug_write(c);
 
-    write(c, 4, "1");
+    writeCache(c, 4, "1");
     debug_write(c);
 
-    write(c, 5, "2");
+    writeCache(c, 5, "2");
     debug_write(c);
 
-    write(c, 4, "3");
+    writeCache(c, 4, "3");
     debug_write(c);
 
-    read(c, 5);
+    readCache(c, 5);
     debug_write(c);
 
-    write(c, 6, "4");
+    writeCache(c, 6, "4");
     debug_write(c);
 
-    read(c, 5);
+    readCache(c, 5);
     debug_write(c);
 
-    read(c, 4);
+    readCache(c, 4);
+    debug_write(c);
+
+    writeCache(c, 7, "5");
+    debug_write(c);
+
+    writeCache(c, 8, "6");
+    debug_write(c);
+
+    writeCache(c, 9, "7");
+    debug_write(c);
+
+    readCache(c, 8);
     debug_write(c);
 #endif
 

@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 #define CACHE_SIZE 5
-#define BUFF_SIZE 2
+#define BUFF_SIZE 2048
 
 struct CacheRecord
 {
@@ -69,8 +69,8 @@ struct CacheLRU
     }
 };
 
-char* read(CacheLRU& _cache, ClusterNo _id);
-void write(CacheLRU& _cache, ClusterNo _id, char* _buffer);
+char* readCache(CacheLRU& _cache, ClusterNo _id);
+void writeCache(CacheLRU& _cache, ClusterNo _id, const char* _buffer);
 void debug_write(CacheLRU& _cache);
 
 #endif

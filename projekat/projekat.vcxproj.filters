@@ -59,9 +59,6 @@
     <ClInclude Include="kernel_file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="disk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="pathparser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
