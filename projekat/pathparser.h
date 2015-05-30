@@ -72,7 +72,7 @@ void write(PathParser& _p)
     printf("Disk: %c\n", _p.disk);
     printf("Delova: %d\n", _p.partsNum);
     for (uint8_t i = 0; i < _p.partsNum; i++)
-        printf("\ [%d]: %s\n", i, get(_p, i));
+        printf("[%d]: %s\n", i, getAt(_p, i));
 }
 
 #endif
