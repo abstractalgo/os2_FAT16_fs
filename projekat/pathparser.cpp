@@ -73,3 +73,23 @@ void write(PathParser& _p)
     for (uint8_t i = 0; i < _p.partsNum; i++)
         printf("[%d]: %s\n", i, getAt(_p, i));
 }
+
+char* combine(PathParser& _p, uint8_t _n)
+{
+    char* res = new char[3];
+    res[0] = _p.disk;
+    res[1] = ':';
+    res[2] = '\\';
+    uint16_t size = 3;
+    for (uint8_t i = 0; i < _n; i++)
+    {
+        uint16_t part_size = strlen(_p.parts[i]);
+        size += part_size+1;
+        res = (char*)realloc(res, (size+1)*SOC);
+        memcpy(res+size-part_size-1, _p.parts[i], SOC*part_size);
+        res[size-1] = '\\';
+    }
+    res = (char*)realloc(res, (size+1)*SOC);
+    res[size] = '\0';
+    return res;
+}

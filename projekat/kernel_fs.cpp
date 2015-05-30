@@ -62,27 +62,6 @@ char KernelFS::format(char part)
     return res;
 }
 
-static bool matchName(Entry& e, char* name)
-{
-    int i = 0, j = 0;
-    bool tacka = false;
-    while (name[i] != '\0')
-    {
-        if (name[i] == '.')
-        {
-            tacka = true;
-            j = 0;
-            i++;
-        }
-        if ((tacka && e.ext[j] != name[i]) ||
-            (!tacka && e.name[j] != name[i]))
-            return false;
-        j++;
-        i++;
-    }
-    return true;
-}
-
 /*
 proverava posotjanje fajla/foldera sa zadatom putanjom
 */
@@ -131,6 +110,7 @@ otvara fajl ili pravi novi
 */
 File* KernelFS::open(char* fname, char mode)
 {
+
     return 0;
 }
 
@@ -151,71 +131,7 @@ pravi folder
 */
 char KernelFS::createDir(char* dirname)
 {
- //   // if doesExist parentFolder
- //   // napravi novi folder
-	//PathIterator* pi = new PathIterator(dirname);
-	///*if (!pi->isValid())
-	//{
-	//	delete pi;
-	//	return 0;
-	//}*/
 
-	//Entry* pe = getEntry(pi->getParent());
-	//Disk* d = disks[pi->disk() - 65].disk;
-	//char* dir_name = pi->last();
-
-	//if (pe == 0)
-	//{
-	//	delete pi;
-	//	return 0;
-	//}
-
-	//// dodaj entry unutar klastera od roditelja
-	//ClusterNo id;
-	//ClusterNo offset = pe->size % 100;
-
-	//// pun je klaster, treba uzeti novi
-	//if (pe->size % 100 == 0 && pe->size>0)
-	//{
-	//	id = d->m_meta->freeNode;
-	//	d->m_meta->freeNode = d->m_FAT[d->m_meta->freeNode];
-
-	//	ClusterNo klid = pe->firstCluster;
-	//	while (d->m_FAT[klid] != 0)
-	//		klid = d->m_FAT[klid];
-	//	d->m_FAT[klid] = id;
-	//	d->m_FAT[id] = 0;
-	//}
-	//// ima mesta u klasteru
-	//else
-	//{
-	//	id = pe->firstCluster;
-	//	while (d->m_FAT[id] != 0)
-	//		id = d->m_FAT[id];
-	//}
-
-	//// oslobodi jedan klaster za podatke novonapravljenog foldera
-	//ClusterNo dataFolder = d->m_meta->freeNode;
-	//d->m_meta->freeNode = d->m_FAT[d->m_meta->freeNode];
-	//d->m_FAT[dataFolder] = 0;
-
-	//// napravi entry
-	//Entry* e = new Entry;
-	//e->attributes = 0x02;
-	//e->firstCluster = 0; //todo
-	//e->size = 0;
-	//memcpy(e->name, dir_name, sizeof(char)*strlen(dir_name));
-	//e->firstCluster = dataFolder;
-
-	//// upisi entry u klaster
-	//char* data = new char[2048];
-	//d->readCluster(id, data);
-	//memcpy((Entry*)data + offset, e, sizeof(Entry));
-	//d->writeCluster(id, data);
-	//delete e;
-
-	//delete dir_name;
-	//delete pi;
 	return 1;
 }
 

@@ -62,16 +62,71 @@ int writeCluster(Disk& _d, ClusterNo _id, const char* _buffer)
     return _d.partition->writeCluster(_id, _buffer);
 }
 
+bool matchName(Entry& e, char* name)
+{
+    int i = 0, j = 0;
+    bool tacka = false;
+    while (name[i] != '\0')
+    {
+        if (name[i] == '.')
+        {
+            tacka = true;
+            j = 0;
+            i++;
+        }
+        if ((tacka && e.ext[j] != name[i]) ||
+            (!tacka && e.name[j] != name[i]))
+            return false;
+        j++;
+        i++;
+    }
+    return true;
+}
+
 bool getEntry(Disk& _d, Entry& _e, char* _fname)
 {
+    // parsiraj putanju
     PathParser ppath;
     parse(ppath, _fname);
 
+    // root entry
+    Entry dir;
+    dir.attributes = 0x03;
+    dir.firstCluster = _d.meta.rootDir;
+    dir.size = _d.meta.rootSize;
+
+    bool fnd = false;
+    // za svaki deo imena
     for (uint8_t i = 0; i < ppath.partsNum; i++)
     {
+        if (dir.size == 0 || (i == ppath.partsNum - 1 && dir.attributes == 0x01))
+            return false;
 
+        // uzmi sve entry-je foldera
+        Entry* entries = new Entry[dir.size];
+        listDir(_d, dir, entries);
+        fnd = false;
+        // pronadji entry u listi
+        for (uint8_t eid = 0; eid < dir.size; eid++)
+        {
+            if (matchName(entries[eid], ppath.parts[i]))
+            {
+                dir = entries[eid];
+                fnd = true;
+                break;
+            }
+        }
+        delete[] entries;
+        if (!fnd) return false;
     }
-    return true;
+
+    if (fnd)
+    {
+        _e = dir;
+        return true;
+    }
+
+    return false;
 }
 
 void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
@@ -98,7 +153,7 @@ void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
     }
 }
 
-void write(Disk& _d, Entry& _e, uint8_t _level)
+static void write(Disk& _d, Entry& _e, uint8_t _level)
 {
     for (uint8_t i = 0; i<_level; i++) putchar('-');
     printf("'%.8s.%.3s' (%s, %d, %d)\n", _e.name, _e.ext, _e.attributes == 0x01 ? "fajl" : (_e.attributes == 0x02 ? "poddir" : (_e.attributes == 0x03 ? "rootdir" : "unknown")), _e.firstCluster, _e.size);

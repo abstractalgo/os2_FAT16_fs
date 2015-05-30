@@ -16,7 +16,7 @@
 int main(int argc, char** argv)
 {
 
-#define testapp
+//#define testapp
 #ifdef testapp
 
     Partition *p1 = new Partition("p1.ini");
@@ -52,12 +52,13 @@ int main(int argc, char** argv)
     delete p2;
 #endif
 
-//#define testpathparser
+#define testpathparser
 #ifdef testpathparser
 
     PathParser p;
     parse(p, p_a_t_h);
     printf("** %s\n", isValid(p)?"validno":"nevalidno");
+    printf("* %s\n", combine(p, 3));
 #endif
 
 	getchar();

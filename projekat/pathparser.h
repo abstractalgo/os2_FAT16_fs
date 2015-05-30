@@ -38,5 +38,6 @@ bool isFolder(char* _str);                                                      
 bool isFile(char* _str);                                                        // provera da li je fajl
 bool isValid(PathParser& _p);                                                   // provera da li je string validan
 void write(PathParser& _p);                                                     // ispis (za debug svrhe)
+char* combine(PathParser& _p, uint8_t _n);
 
 #endif

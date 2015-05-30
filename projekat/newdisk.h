@@ -76,12 +76,11 @@ int writeCluster(Disk& _d, ClusterNo _id, const char* _buffer);
 char release(Disk& _d);
 char format(Disk& _d);
 
-bool getEntry(Disk& _d, Entry& _e);
+bool getEntry(Disk& _d, Entry& _e, char* _fname);
 
 // helper
-void listDir(Disk& _d, Entry& _dir, Entry *& _entries);
-void write(Disk& _d, Entry& _e, uint8_t _level);
-void tree(Disk& _d);
-void tree(char c);
+void listDir(Disk& _d, Entry& _dir, Entry *& _entries);     // pravi niz entry-ja za zadati ulaz
+void tree(Disk& _d);                                        // drvo
+bool matchName(Entry& e, char* name);                       // pomocno
 
 #endif
