@@ -69,6 +69,7 @@
     <ClCompile Include="kernel_file.cpp" />
     <ClCompile Include="kernel_fs.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="pathparser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="disk.h" />

@@ -1,13 +1,14 @@
 #include "kernel_fs.h"
+#include "pathparser.h"
 
 KernelFS::KernelFS()
 {
-    disks = new KernelFS::DiskDesc[26];
+    
 }
 
 KernelFS::~KernelFS()
 {
-    delete[] disks;
+    
 }
 
 /*

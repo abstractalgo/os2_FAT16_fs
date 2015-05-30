@@ -163,7 +163,8 @@ class KernelFS
             : used(false)
             , disk(0)
         {}
-    } *disks;
+    };
+    DiskDesc disks[26];
 
     KernelFS();
 	~KernelFS();

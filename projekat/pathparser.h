@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define SOC sizeof(char)
+#define SOCP sizeof(char*)
+
 struct PathParser
 {
     // attributes
@@ -29,50 +32,11 @@ struct PathParser
     }
 };
 
-#define SOC sizeof(char)
-#define SOCP sizeof(char*)
-bool parse(PathParser& _p, const char* _path, bool _zt = true)
-{
-    uint16_t l      = strlen(_path);
-    if (l < 3) return false;
-
-    _p.disk         = _path[0];
-    _p.partsNum     = 0;
-    uint16_t i      = 3;
-
-    // parse
-    while (i<l)
-    {
-        uint16_t old_i = i;
-        // get to the end of the string or the separator
-        while (i < l && _path[i] != '\\') i++;
-        
-        // allocate memory and copy data
-        _p.parts = (char**)realloc(_p.parts, (_p.partsNum + 1) * SOCP);
-        _p.parts[_p.partsNum] = (char*)malloc(SOC*(i - old_i + _zt ? 1 : 0));
-        memcpy(_p.parts[_p.partsNum], _path + old_i, SOC*(i - old_i));
-        if (_zt) _p.parts[_p.partsNum][i - old_i] = '\0';
-
-        _p.partsNum++;
-        i++;
-    }
-
-    return true;
-}
-
-char* getAt(PathParser& _p, uint8_t _index)
-{
-    return _index >= _p.partsNum
-                ? 0
-                : _p.parts[_index];
-}
-
-void write(PathParser& _p)
-{
-    printf("Disk: %c\n", _p.disk);
-    printf("Delova: %d\n", _p.partsNum);
-    for (uint8_t i = 0; i < _p.partsNum; i++)
-        printf("[%d]: %s\n", i, getAt(_p, i));
-}
+bool parse(PathParser& _p, const char* _path, bool _zt = true);                 // parsira string u PathParser
+char* getAt(PathParser& _p, uint8_t _index);                                    // dohvata i-to po redu clan
+bool isFolder(char* _str);                                                      // provera da li je u pitanju folder
+bool isFile(char* _str);                                                        // provera da li je fajl
+bool isValid(PathParser& _p);                                                   // provera da li je string validan
+void write(PathParser& _p);                                                     // ispis (za debug svrhe)
 
 #endif

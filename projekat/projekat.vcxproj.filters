@@ -30,6 +30,9 @@
     <ClCompile Include="kernel_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pathparser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="part.h">
