@@ -247,10 +247,9 @@ char KernelFS::deleteDir(char* dirname)
                 // nasao entry
                 Entry folder = entries[i];
 
-                // oslobodi klastere koji pripadaju folderu
+                // oslobodi klastere koji pripadaju folderu TODO
 
-
-                // ukloni iz naddirektorijuma
+                // ukloni iz naddirektorijuma TODO
                 ClusterNo totalClusters;
                 if (e.size - i < 102)
                 {

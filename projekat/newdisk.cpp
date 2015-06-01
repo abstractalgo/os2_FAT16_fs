@@ -167,8 +167,11 @@ void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
 
 static void write(Disk& _d, Entry& _e, uint8_t _level, bool info)
 {
-    for (uint8_t i = 0; i<_level; i++) printf("  ");
-    printf("#--");
+    if (_level)
+    {
+        for (uint8_t i = 0; i < _level; i++) printf("  ");
+        printf("#--");
+    }
     
     printf(" %s%c%s\n", _e.name, _e.attributes == 0x01 ? '.' : '\0', _e.attributes == 0x01 ? _e.ext : "");
     if (info)

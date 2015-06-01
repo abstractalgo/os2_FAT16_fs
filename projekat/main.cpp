@@ -11,7 +11,8 @@
 
 #define p_a_t_h "X:\\huehue\\hue\\3\\cetiri.pet"
 
-#define TREEDIR(c) printf("------------------------------------\n");tree(*FS::myImpl->disks[c-65].disk, false);printf("------------------------------------\n")
+#define CBREAK printf("----------------------------------------------\n")
+#define TREEDIR(c) CBREAK;printf("%c:/",c);tree(*FS::myImpl->disks[c-65].disk, false);CBREAK
 #define TREEDIRI(c) tree(*FS::myImpl->disks[c-65].disk)
 
 int main(int argc, char** argv)
@@ -31,14 +32,13 @@ int main(int argc, char** argv)
     //char disk2 = FS::mount(p2);
     //FS::format(disk2);
 
-    printf("Da li postoji putanja A:\\? %s.\n", FS::doesExist("A:\\") ? "Da" : "Ne");
-    printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
     FS::createDir("A:\\grim");
     FS::createDir("A:\\grim\\vfx");
     FS::createDir("A:\\ana");
     FS::createDir("A:\\milica");
     FS::createDir("A:\\milica\\bmit");
     TREEDIR(disk1);
+    printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
     printf("Da li postoji putanja A:\\grim\\vfx? %s.\n", FS::doesExist("A:\\grim\\vfx") ? "Da" : "Ne");
     //printf("Da li postoji putanja B:\\? %s.\n", FS::doesExist("B:\\") ? "Da" : "Ne");
     //printf("Da li postoji putanja B:\\dada\\hehe? %s.\n", FS::doesExist("B:\\dada\\hehe") ? "Da" : "Ne");
