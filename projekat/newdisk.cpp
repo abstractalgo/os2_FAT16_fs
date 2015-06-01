@@ -10,7 +10,7 @@ char format(Disk& _d)
     ClusterNo dataClsCnt = ((totalClsCnt - 1) * 512) / 513;
     ClusterNo FATClsCnt = totalClsCnt - 1 - dataClsCnt;
 
-    printf("************\nTotal: %d\nData: %d\nFAT: %d\n************\n", totalClsCnt, dataClsCnt, FATClsCnt);
+    //printf("************\nTotal: %d\nData: %d\nFAT: %d\n************\n", totalClsCnt, dataClsCnt, FATClsCnt);
 
     // upis meta podataka
     buffer[0] = 1;          // free node

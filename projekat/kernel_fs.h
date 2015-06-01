@@ -30,7 +30,7 @@ public:
 	File* open(char* fname, char mode);                 // (bez MT)
 	char deleteFile(char* fname);                       // 
 
-	char createDir(char* dirname);                      // uradjeno
+	char createDir(char* dirname);                      // uradjeno (T)
 	char deleteDir(char* dirname);                      // 
 	char readDir(char* dirname, EntryNum n, Entry &e);  // uradjeno
 

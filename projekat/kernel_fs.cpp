@@ -205,11 +205,14 @@ char KernelFS::createDir(char* dirname)
                 }
             }
         }
+        // nema mesta u trenutnom klasteru TODO ...
+        else
+        {
+            // TODO TODO
+        }
+        return 1;
     }
-    else
-        return 0;
-    
-	return 1;
+    return 0;
 }
 
 /*
@@ -233,7 +236,30 @@ char KernelFS::deleteDir(char* dirname)
     // nadji parent folder
     if (getEntry(d, e, combine(ppath, ppath.partsNum - 1)))
     {
+        Entry* entries = new Entry[e.size];
+        listDir(d, e, entries);
+        Entry folder;
 
+        for (uint8_t i = 0; i < e.size; i++)
+        {
+            if (matchName(entries[i], ppath.parts[ppath.partsNum - 1]))
+            {
+                // nasao entry
+                Entry folder = entries[i];
+
+                // oslobodi klastere koji pripadaju folderu
+
+
+                // ukloni iz naddirektorijuma
+                ClusterNo totalClusters;
+                if (e.size - i < 102)
+                {
+                }
+
+                break;
+            }
+        }
+        delete[] entries;
     }
 	return 0;
 }
