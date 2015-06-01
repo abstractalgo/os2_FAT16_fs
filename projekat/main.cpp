@@ -11,7 +11,8 @@
 
 #define p_a_t_h "X:\\huehue\\hue\\3\\cetiri.pet"
 
-#define TREEDIR(c) tree(*FS::myImpl->disks[c-65].disk)
+#define TREEDIR(c) tree(*FS::myImpl->disks[c-65].disk, false)
+#define TREEDIRI(c) tree(*FS::myImpl->disks[c-65].disk)
 
 int main(int argc, char** argv)
 {
@@ -41,9 +42,12 @@ int main(int argc, char** argv)
     printf("Da li postoji putanja A:\\? %s.\n", FS::doesExist("A:\\") ? "Da" : "Ne");
     printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
     FS::createDir("A:\\dada");
+    FS::createDir("A:\\dada\\bebe");
+    FS::createDir("A:\\gaga");
+    FS::createDir("A:\\tata");
+    FS::createDir("A:\\tata\\mama");
     TREEDIR(disk1);
-    TREEDIR(disk2);
-    printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
+    printf("Da li postoji putanja A:\\tata\\mama? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
     //printf("Da li postoji putanja B:\\? %s.\n", FS::doesExist("B:\\") ? "Da" : "Ne");
     //printf("Da li postoji putanja B:\\dada\\hehe? %s.\n", FS::doesExist("B:\\dada\\hehe") ? "Da" : "Ne");
 

@@ -126,7 +126,6 @@ char KernelFS::deleteFile(char* fname)
 }
 
 /*
--------------- TODO -------------- TODO --------------
 pravi folder
 */
 char KernelFS::createDir(char* dirname)
@@ -148,6 +147,8 @@ char KernelFS::createDir(char* dirname)
         newFolder.attributes = 0x02;
         newFolder.firstCluster = allocate(d);
         d.FAT[newFolder.firstCluster] = 0;
+        for (uint8_t i = 0; i < 8; newFolder.name[i++] = '\0');
+        for (uint8_t i = 0; i < 3; newFolder.ext[i++] = '\0');
         memcpy(newFolder.name, ppath.parts[ppath.partsNum - 1], SOC*strlen(ppath.parts[ppath.partsNum - 1]));
         newFolder.size = 0;
 
@@ -162,8 +163,7 @@ char KernelFS::createDir(char* dirname)
             Entry* entries = (Entry*)w_buffer;
             readCluster(d, cid, w_buffer);
             // mesto za smestanje entry-ja
-            memcpy(entries + ((e.size + 102) % 102), &newFolder, sizeof(Entry));
-            //entries[(e.size + 102) % 102] = newFolder;
+            entries[(e.size + 102) % 102] = newFolder;
             writeCluster(d, cid, w_buffer);
             delete[] w_buffer;
             // apdejtuj velicinu nadfoldera
@@ -173,7 +173,7 @@ char KernelFS::createDir(char* dirname)
             }
             else
             {
-                // nadji nad folder, za promenu velicine
+                // nadji nad folder, za promeni velicine
                 Entry _dir;
                 getEntry(d, _dir, combine(ppath, ppath.partsNum - 2));
                 char w_buffer[2048];
@@ -239,15 +239,30 @@ char KernelFS::deleteDir(char* dirname)
 }
 
 /*
--------------- TODO -------------- TODO --------------
 otvara n-ti Entry unutar foldera
 */
 char KernelFS::readDir(char* dirname, EntryNum n, Entry &e)
 {
-	/*Entry* pe = getEntry(dirname);
-	if (pe == 0)
-		return 0;
-*/
-	// TODO: imas klaster, vrati sad n-ti entry
+    PathParser ppath;
+    parse(ppath, dirname);
+    int idx = ppath.disk - 65;
+    if (idx<0 || idx>25 || false == disks[idx].used)
+        return 0;
+
+    Disk& d = *disks[idx].disk;
+    Entry dir;
+
+    // nadji folder gde treba napraviti novi entry
+    if (getEntry(d, dir, dirname))
+    {
+        Entry* entries = new Entry[dir.size];
+        listDir(d, dir, entries);
+        if (n >= 0 && n < dir.size)
+        {
+            e = entries[n];
+            delete[] entries;
+            return 1;
+        }
+    }
 	return 0;
 }

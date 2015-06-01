@@ -165,11 +165,16 @@ void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
     }
 }
 
-static void write(Disk& _d, Entry& _e, uint8_t _level)
+static void write(Disk& _d, Entry& _e, uint8_t _level, bool info)
 {
-    for (uint8_t i = 0; i<_level; i++) putchar(' ');
-    printf("|--");
-    printf(" '%.8s.%.3s' (%s, %d, %d)\n", _e.name, _e.ext, _e.attributes == 0x01 ? "fajl" : (_e.attributes == 0x02 ? "poddir" : (_e.attributes == 0x03 ? "rootdir" : "unknown")), _e.firstCluster, _e.size);
+    for (uint8_t i = 0; i<_level; i++) printf("  ");
+    printf("#--");
+    
+    printf(" %s%c%s\n", _e.name, _e.attributes == 0x01 ? '.' : '\0', _e.attributes == 0x01 ? _e.ext : "");
+    if (info)
+    {
+        printf(" [%s, %d, %d]", _e.attributes == 0x01 ? "f" : (_e.attributes == 0x02 ? "d" : (_e.attributes == 0x03 ? "r" : "u")), _e.firstCluster, _e.size);
+    }   
 
     // ako je folder, nastavi ispis rekurzivno
     if (_e.attributes > 1)
@@ -178,20 +183,22 @@ static void write(Disk& _d, Entry& _e, uint8_t _level)
         listDir(_d, _e, slotovi);
         for (uint8_t i = 0; i < _e.size; i++)
         {
-            write(_d, slotovi[i], _level + 1);
+            write(_d, slotovi[i], _level + 1, info);
         }
         delete[] slotovi;
     }
 }
 
-void tree(Disk& _d)
+void tree(Disk& _d, bool info)
 {
     Entry dir;
     dir.attributes = 0x03;
     dir.firstCluster = _d.meta.rootDir;
     dir.size = _d.meta.rootSize;
+    for (uint8_t i = 0; i < 8; dir.name[i++] = '\0');
+    for (uint8_t i = 0; i < 3; dir.ext[i++] = '\0');
 
-    write(_d, dir, 0);
+    write(_d, dir, 0, info);
 }
 
 ClusterNo offset(Disk& _d)
