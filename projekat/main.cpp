@@ -24,31 +24,32 @@ int main(int argc, char** argv)
 
     char disk1, disk2;
 
-    MARK("Mount 1");
+    //MARK("Mount 1");
     disk1 = FS::mount(p1);
 
-    MARK("Format 1");
+    //MARK("Format 1");
     FS::format(disk1);
 
     TREEDIR(disk1);
 
-    MARK("Mount 2");
+    //MARK("Mount 2");
     disk2 = FS::mount(p2);
 
-    MARK("Format 2");
+    //MARK("Format 2");
     FS::format(disk2);
 
     printf("Da li postoji putanja A:\\? %s.\n", FS::doesExist("A:\\") ? "Da" : "Ne");
     printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
     FS::createDir("A:\\dada");
     TREEDIR(disk1);
+    TREEDIR(disk2);
     printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
     //printf("Da li postoji putanja B:\\? %s.\n", FS::doesExist("B:\\") ? "Da" : "Ne");
     //printf("Da li postoji putanja B:\\dada\\hehe? %s.\n", FS::doesExist("B:\\dada\\hehe") ? "Da" : "Ne");
 
-    MARK("Unmount 1");
+    //MARK("Unmount 1");
     FS::unmount(disk1);
-    MARK("Unmount 2");
+    //MARK("Unmount 2");
     FS::unmount(disk2);
 
     delete p1;

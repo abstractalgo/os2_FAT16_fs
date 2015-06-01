@@ -10,21 +10,26 @@ char format(Disk& _d)
     ClusterNo dataClsCnt = ((totalClsCnt - 1) * 512) / 513;
     ClusterNo FATClsCnt = totalClsCnt - 1 - dataClsCnt;
 
+    printf("************\nTotal: %d\nData: %d\nFAT: %d\n************\n", totalClsCnt, dataClsCnt, FATClsCnt);
+
     // upis meta podataka
-    buffer[0] = 1;
-    buffer[1] = dataClsCnt;
-    buffer[2] = 0;
-    buffer[3] = 0;
+    buffer[0] = 1;          // free node
+    buffer[1] = dataClsCnt; // FAT size
+    buffer[2] = 0;          // root dir
+    buffer[3] = 0;          // root size
     _d.partition->writeCluster(0, w_buffer);
 
     // formatiranje FAT tabele
     ClusterNo left = dataClsCnt;
-    for (ClusterNo cid = 0; cid < dataClsCnt; cid++)
+    for (ClusterNo cid = 0; cid < FATClsCnt; cid++)
     {
         for (ClusterNo i = 0; i < 512; i++)
         {
-            buffer[i] = (cid * 512) + i + 1;
-            if (cid * 512 + i == dataClsCnt)
+            ClusterNo idx = (cid * 512) + i;
+            buffer[i] = idx + 1;
+            if (0 == idx)
+                buffer[0] = 0;
+            if (idx == dataClsCnt)
             {
                 buffer[i] = 0;
                 break;
@@ -44,21 +49,22 @@ char release(Disk& _d)
 
 int readCluster(Disk& _d, ClusterNo _id, char* _buffer)
 {
-    char* data = readCache(_d.cache, _id);
-    if (data)
-    {
-        _buffer = data;
+#ifdef USE_CACHE
+    if (readCache(_d.cache, _id, _buffer))
         return 1;
-    }
-
+#endif
     int t = _d.partition->readCluster(offset(_d)+_id, _buffer);
+#ifdef USE_CACHE
     writeCache(_d.cache, _id, _buffer);
+#endif
     return t;
 }
 
 int writeCluster(Disk& _d, ClusterNo _id, const char* _buffer)
 {
+#ifdef USE_CACHE
     writeCache(_d.cache, _id, _buffer);
+#endif
     return _d.partition->writeCluster(offset(_d)+_id, _buffer);
 }
 
@@ -94,6 +100,13 @@ bool getEntry(Disk& _d, Entry& _e, char* _fname)
     dir.attributes = 0x03;
     dir.firstCluster = _d.meta.rootDir;
     dir.size = _d.meta.rootSize;
+
+    // root dir
+    if (!ppath.partsNum)
+    {
+        _e = dir;
+        return true;
+    }
 
     bool fnd = false;
     // za svaki deo imena
@@ -132,7 +145,7 @@ bool getEntry(Disk& _d, Entry& _e, char* _fname)
 void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
 {
     char w_buffer[2048];
-    Entry* e_buffer;
+    Entry* e_buffer = (Entry*)w_buffer;
 
     ClusterNo brojUlaza = _dir.size;
     _entries = new Entry[brojUlaza];
@@ -143,7 +156,6 @@ void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
     for (uint8_t i = 0; i < brojKlastera; i++)
     {
         readCluster(_d, cid, w_buffer);
-        e_buffer = (Entry*)w_buffer;
         uint8_t limit = preostalo < 102 ? preostalo : 102;
         for (uint8_t eid = 0; eid < limit; eid++)
         {
@@ -155,8 +167,9 @@ void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
 
 static void write(Disk& _d, Entry& _e, uint8_t _level)
 {
-    for (uint8_t i = 0; i<_level; i++) putchar('-');
-    printf("'%.8s.%.3s' (%s, %d, %d)\n", _e.name, _e.ext, _e.attributes == 0x01 ? "fajl" : (_e.attributes == 0x02 ? "poddir" : (_e.attributes == 0x03 ? "rootdir" : "unknown")), _e.firstCluster, _e.size);
+    for (uint8_t i = 0; i<_level; i++) putchar(' ');
+    printf("|--");
+    printf(" '%.8s.%.3s' (%s, %d, %d)\n", _e.name, _e.ext, _e.attributes == 0x01 ? "fajl" : (_e.attributes == 0x02 ? "poddir" : (_e.attributes == 0x03 ? "rootdir" : "unknown")), _e.firstCluster, _e.size);
 
     // ako je folder, nastavi ispis rekurzivno
     if (_e.attributes > 1)
@@ -183,7 +196,7 @@ void tree(Disk& _d)
 
 ClusterNo offset(Disk& _d)
 {
-    return (_d.meta.fatSize + 511) / 512;
+    return (_d.meta.fatSize + 511) / 512 + 1;
 }
 
 ClusterNo allocate(Disk& _d)

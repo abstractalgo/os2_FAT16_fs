@@ -12,6 +12,8 @@
 
 #define SOCL sizeof(ClusterNo)
 
+#define USE_CACHE
+
 struct Disk
 {
     // partition

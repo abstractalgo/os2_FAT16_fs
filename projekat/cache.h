@@ -69,7 +69,7 @@ struct CacheLRU
     }
 };
 
-char* readCache(CacheLRU& _cache, ClusterNo _id);
+bool readCache(CacheLRU& _cache, ClusterNo _id, char*);
 void writeCache(CacheLRU& _cache, ClusterNo _id, const char* _buffer);
 void debug_write(CacheLRU& _cache);
 

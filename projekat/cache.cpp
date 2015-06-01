@@ -1,6 +1,6 @@
 #include "cache.h"
 
-char* readCache(CacheLRU& _cache, ClusterNo _id)
+bool readCache(CacheLRU& _cache, ClusterNo _id, char* _buffer)
 {
     CacheRecord* temp = _cache.root;
     uint8_t i = 0;
@@ -21,12 +21,13 @@ char* readCache(CacheLRU& _cache, ClusterNo _id)
                 // root
                 _cache.root = temp;
             }
-            return temp->buffer;
+            memcpy(_buffer, temp->buffer, 2048);
+            return true;
         }
         temp = temp->next;
         i++;
     }
-    return 0;
+    return false;
 }
 
 void writeCache(CacheLRU& _cache, ClusterNo _id, const char* _buffer)

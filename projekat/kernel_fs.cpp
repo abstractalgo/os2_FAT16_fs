@@ -140,7 +140,7 @@ char KernelFS::createDir(char* dirname)
     Disk& d = *disks[idx].disk;
     Entry e;
 
-    // nadji parent folder
+    // nadji folder gde treba napraviti novi entry
     if (getEntry(d, e, combine(ppath, ppath.partsNum - 1)))
     {
         // napravi novi entry
@@ -152,20 +152,62 @@ char KernelFS::createDir(char* dirname)
         newFolder.size = 0;
 
         // ima mesta u trenutnom klasteru
-        if (e.size==0 && e.size % 102 != 0)
+        if (e.size == 0 || e.size % 102 != 0)
         {
             // nadji poslednji klaster
-            ClusterNo cid = d.FAT[e.firstCluster];
+            ClusterNo cid = e.firstCluster;
             while (d.FAT[cid] != 0) cid = d.FAT[cid];
             // procitaj klaster
             char* w_buffer = new char[2048];
             Entry* entries = (Entry*)w_buffer;
             readCluster(d, cid, w_buffer);
             // mesto za smestanje entry-ja
-            entries[e.size % 102] = newFolder;
+            memcpy(entries + ((e.size + 102) % 102), &newFolder, sizeof(Entry));
+            //entries[(e.size + 102) % 102] = newFolder;
             writeCluster(d, cid, w_buffer);
+            delete[] w_buffer;
+            // apdejtuj velicinu nadfoldera
+            if (e.attributes == 0x03)
+            {
+                d.meta.rootSize++;
+            }
+            else
+            {
+                // nadji nad folder, za promenu velicine
+                Entry _dir;
+                getEntry(d, _dir, combine(ppath, ppath.partsNum - 2));
+                char w_buffer[2048];
+                Entry* e_buffer = (Entry*)w_buffer;
+
+                ClusterNo brojUlaza = _dir.size;
+
+                ClusterNo brojKlastera = (_dir.size + 101) / 102;
+                ClusterNo preostalo = brojUlaza;
+                ClusterNo cid = _dir.firstCluster;
+                for (uint8_t i = 0; i < brojKlastera; i++)
+                {
+                    readCluster(d, cid, w_buffer);
+                    e_buffer = (Entry*)w_buffer;
+                    uint8_t limit = preostalo < 102 ? preostalo : 102;
+                    bool fnd = false;
+                    for (uint8_t eid = 0; eid < limit; eid++)
+                    {
+                        if (e_buffer[eid].firstCluster == e.firstCluster)
+                        {
+                            fnd = true;
+                            e_buffer[eid].size++;
+                            writeCluster(d, cid, w_buffer);
+                            break;
+                        }
+                    }
+                    if (fnd) break;
+                    cid = d.FAT[cid];
+                }
+            }
         }
     }
+    else
+        return 0;
     
 	return 1;
 }
