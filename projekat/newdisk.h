@@ -41,7 +41,6 @@ struct Disk
 
     Disk(Partition* _p)
         : cache(CACHE_SIZE)
-        , filetable(0)
     {
         char w_buffer[2048];
         ClusterNo* buffer = (ClusterNo*)w_buffer;
@@ -69,23 +68,32 @@ struct Disk
 
         // assign partition
         partition = _p;
+
+        // opened files
+        filetable = 0;
     }
 
     ~Disk()
     {
+        // TODO wait for opened files to empty
         delete[] FAT;
     }
 };
 
+// cluster-wise
 int readCluster(Disk& _d, ClusterNo _id, char* _buffer);
 int writeCluster(Disk& _d, ClusterNo _id, const char* _buffer);
-
-// helper
-bool getEntry(Disk& _d, Entry& _e, char* _fname);
 ClusterNo allocate(Disk& _d);
-void listDir(Disk& _d, Entry& _dir, Entry *& _entries);     // pravi niz entry-ja za zadati ulaz
-void tree(Disk& _d, bool info=true);                        // drvo
-bool matchName(Entry& e, char* name);                       // pomocno
 ClusterNo offset(Disk& _d);
+
+// content-wise
+bool getEntry(Disk& _d, Entry& _e, char* _fname);
+bool deleteEntry(Disk& _d, char* _path);
+void listDir(Disk& _d, Entry& _dir, Entry *& _entries);
+
+// debug
+void tree(Disk& _d, bool info=true);
+bool matchName(Entry& e, char* name);
+
 
 #endif

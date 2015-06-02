@@ -53,6 +53,6 @@ KernelFile::~KernelFile()
 // private
 
 KernelFile::KernelFile()
+    : caret(0)
 {
-    // TODO
 }

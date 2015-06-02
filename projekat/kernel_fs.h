@@ -5,6 +5,8 @@
 #include "part.h"
 #include "windows.h"
 #include "newdisk.h"
+#include "file.h"
+#include "kernel_file.h"
 
 class KernelFS
 {

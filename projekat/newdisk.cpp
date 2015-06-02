@@ -1,52 +1,5 @@
 #include "newdisk.h"
 
-//char format(Disk& _d)
-//{
-//    char w_buffer[2048];
-//    ClusterNo* buffer = (ClusterNo*)w_buffer;
-//
-//    // racunanje velicine
-//    ClusterNo totalClsCnt = _d.partition->getNumOfClusters();
-//    ClusterNo dataClsCnt = ((totalClsCnt - 1) * 512) / 513;
-//    ClusterNo FATClsCnt = totalClsCnt - 1 - dataClsCnt;
-//
-//    //printf("************\nTotal: %d\nData: %d\nFAT: %d\n************\n", totalClsCnt, dataClsCnt, FATClsCnt);
-//
-//    // upis meta podataka
-//    buffer[0] = 1;          // free node
-//    buffer[1] = dataClsCnt; // FAT size
-//    buffer[2] = 0;          // root dir
-//    buffer[3] = 0;          // root size
-//    _d.partition->writeCluster(0, w_buffer);
-//
-//    // formatiranje FAT tabele
-//    ClusterNo left = dataClsCnt;
-//    for (ClusterNo cid = 0; cid < FATClsCnt; cid++)
-//    {
-//        for (ClusterNo i = 0; i < 512; i++)
-//        {
-//            ClusterNo idx = (cid * 512) + i;
-//            buffer[i] = idx + 1;
-//            if (0 == idx)
-//                buffer[0] = 0;
-//            if (idx == dataClsCnt)
-//            {
-//                buffer[i] = 0;
-//                break;
-//            }
-//        }
-//        _d.partition->writeCluster(1+cid, w_buffer);
-//    }
-//
-//    return 1;
-//}
-
-char release(Disk& _d)
-{
-    // TODO ...
-    return 0;
-}
-
 int readCluster(Disk& _d, ClusterNo _id, char* _buffer)
 {
 #ifdef USE_CACHE
@@ -66,6 +19,18 @@ int writeCluster(Disk& _d, ClusterNo _id, const char* _buffer)
     writeCache(_d.cache, _id, _buffer);
 #endif
     return _d.partition->writeCluster(offset(_d)+_id, _buffer);
+}
+
+ClusterNo offset(Disk& _d)
+{
+    return (_d.meta.fatSize + 511) / 512 + 1;
+}
+
+ClusterNo allocate(Disk& _d)
+{
+    ClusterNo freeNode = _d.meta.freeNode;
+    _d.meta.freeNode = _d.FAT[_d.meta.freeNode];
+    return /*offset(_d) +*/ freeNode;
 }
 
 bool matchName(Entry& e, char* name)
@@ -165,6 +130,64 @@ void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
     }
 }
 
+bool deleteEntry(Disk& _d, char* _path)
+{
+    PathParser ppath;
+    parse(ppath, _path);
+
+    Entry parent_folder, ent;
+
+    // nadji parent folder
+    if (getEntry(_d, parent_folder, combine(ppath, ppath.partsNum - 1)))
+    {
+        Entry* entries = new Entry[parent_folder.size];
+        listDir(_d, parent_folder, entries);
+
+        // nadji entry unutar parent foldera
+        bool fnd = false;
+        uint16_t idx = 0;
+
+        for (uint16_t i = 0; i < parent_folder.size; i++)
+        {
+            if (matchName(entries[i], ppath.parts[ppath.partsNum - 1]))
+            {
+                // nasao entry
+                ent = entries[i];
+                fnd = true;
+                idx = i;
+                break;
+            }
+        }
+        delete[] entries;
+
+        if (!fnd)
+            return false;
+
+        if (ent.attributes == 0x02 && ent.size != 0)
+            return false;
+
+        // oslobodi klastere koji pripadaju entry-ju
+        ClusterNo cid = ent.firstCluster;
+        while (cid != 0)
+        {
+            _d.FAT[cid] = _d.meta.freeNode;
+            _d.meta.freeNode = cid;
+            cid = _d.FAT[cid];
+        }
+
+        // ukloni iz naddirektorijuma TODO
+        ClusterNo totalClusters;
+        if (parent_folder.size-idx < 102)
+        {
+        }
+    }
+    return 0;
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
 static void write(Disk& _d, Entry& _e, uint8_t _level, bool info)
 {
     if (_level)
@@ -202,16 +225,4 @@ void tree(Disk& _d, bool info)
     for (uint8_t i = 0; i < 3; dir.ext[i++] = '\0');
 
     write(_d, dir, 0, info);
-}
-
-ClusterNo offset(Disk& _d)
-{
-    return (_d.meta.fatSize + 511) / 512 + 1;
-}
-
-ClusterNo allocate(Disk& _d)
-{
-    ClusterNo freeNode = _d.meta.freeNode;
-    _d.meta.freeNode = _d.FAT[_d.meta.freeNode];
-    return /*offset(_d) +*/ freeNode;
 }

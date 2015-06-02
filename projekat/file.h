@@ -12,7 +12,8 @@ public:
     BytesCnt getFileSize();
     char truncate();
     ~File(); //zatvaranje fajla
-private: friend class FS;
+private:
+    friend class FS;
     friend class KernelFS;
     File(); // kreiranje fajla
     KernelFile *myImpl;

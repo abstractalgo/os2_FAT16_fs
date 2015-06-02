@@ -242,46 +242,7 @@ brise folder
 */
 char KernelFS::deleteDir(char* dirname)
 {
-    // obrisi ga iz parent foldera
-    // nadovezi *free
-
-    PathParser ppath;
-    parse(ppath, dirname);
-    int idx = ppath.disk - 65;
-    if (idx<0 || idx>25 || false == disks[idx].used)
-        return 0;
-
-    Disk& d = *disks[idx].disk;
-    Entry e;
-
-    // nadji parent folder
-    if (getEntry(d, e, combine(ppath, ppath.partsNum - 1)))
-    {
-        Entry* entries = new Entry[e.size];
-        listDir(d, e, entries);
-        Entry folder;
-
-        for (uint8_t i = 0; i < e.size; i++)
-        {
-            if (matchName(entries[i], ppath.parts[ppath.partsNum - 1]))
-            {
-                // nasao entry
-                Entry folder = entries[i];
-
-                // oslobodi klastere koji pripadaju folderu TODO
-
-                // ukloni iz naddirektorijuma TODO
-                ClusterNo totalClusters;
-                if (e.size - i < 102)
-                {
-                }
-
-                break;
-            }
-        }
-        delete[] entries;
-    }
-	return 0;
+    
 }
 
 /*
@@ -321,12 +282,56 @@ otvara fajl ili pravi novi
 */
 File* KernelFS::open(char* fname, char mode)
 {
-    // doesExist?
-    //      vraca kernel file
-    //      kreira i vraca kernel file
-    File* f;
+    PathParser ppath;
+    parse(ppath, fname);
+    int idx = ppath.disk - 65;
+    if (idx<0 || idx>25 || false == disks[idx].used)
+        return 0;
 
-    return 0;
+    Disk& d = *disks[idx].disk;
+
+    // proverava da li je vec otvaran fajl
+    misc::FileItem* temp = d.filetable;
+    char* name1, *name2;
+    name1 = combine(ppath, ppath.partsNum);
+    while (temp)
+    {
+        name2 = combine(temp->file->ppath, temp->file->ppath.partsNum);
+        int __cmp = strcmp(name1, name2);
+        delete[] name2;
+        if ( 0 == __cmp )
+        {
+            // ranije otvoren fajl, stavi se na cekanje
+            void* current_thread = GetCurrentThread();
+            request_file_access(temp->file->threadtable, current_thread);
+            SuspendThread(current_thread);
+            break;
+        }
+        
+        temp = temp->next;
+    }
+    delete[] name1;
+
+    // otvaranje fajla
+    File* f = new File;
+    f->myImpl = new KernelFile;
+    Entry e;
+
+    if (!doesExist(fname))
+    {
+        // napravi fajl.. TODO
+    }
+
+    // povezi sa entry-jem
+    f->myImpl->entry = e;
+
+    // modalitet
+    f->myImpl->mod = mode;
+
+    // path
+    parse(f->myImpl->ppath, fname);
+
+    return f;
 }
 
 /*

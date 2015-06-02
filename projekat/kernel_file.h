@@ -1,4 +1,5 @@
 #include "misc.h"
+#include "pathparser.h"
 
 class KernelFile
 {
@@ -18,10 +19,7 @@ private:
     unsigned long caret;
     char mod;
     misc::FileAccessItem* threadtable;
-
-    // lista pokazivaca na FIFO niti
-    // trenutni modalitet
-
+    PathParser ppath;
 
     friend class FS;
     friend class KernelFS;
