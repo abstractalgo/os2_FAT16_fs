@@ -15,6 +15,10 @@ private:
     Entry m_entry;
     unsigned long m_caret;
 
+    // lista pokazivaca na FIFO niti
+    // trenutni modalitet
+
+
     friend class FS;
     friend class KernelFS;
     KernelFile();

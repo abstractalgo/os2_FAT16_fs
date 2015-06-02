@@ -80,6 +80,7 @@
     <ClInclude Include="fs.h" />
     <ClInclude Include="kernel_file.h" />
     <ClInclude Include="kernel_fs.h" />
+    <ClInclude Include="misc.h" />
     <ClInclude Include="newdisk.h" />
     <ClInclude Include="part.h" />
     <ClInclude Include="pathparser.h" />

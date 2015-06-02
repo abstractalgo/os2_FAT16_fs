@@ -10,6 +10,8 @@ KernelFS::~KernelFS()
     
 }
 
+// -----------------------------------------------------------------------------
+
 /*
 montira particiju/disk
 */
@@ -62,6 +64,8 @@ char KernelFS::format(char part)
     return res;
 }
 
+// -----------------------------------------------------------------------------
+
 /*
 proverava posotjanje fajla/foldera sa zadatom putanjom
 */
@@ -102,27 +106,6 @@ char KernelFS::doesExist(char* fname)
     }
 
     return 1;
-}
-
-/*
--------------- TODO -------------- TODO --------------
-otvara fajl ili pravi novi
-*/
-File* KernelFS::open(char* fname, char mode)
-{
-
-    return 0;
-}
-
-/*
--------------- TODO -------------- TODO --------------
-brise fajl
-*/
-char KernelFS::deleteFile(char* fname)
-{
-    // obrisi ga iz foldera
-    // nadovezi *free
-	return 0;
 }
 
 /*
@@ -290,4 +273,30 @@ char KernelFS::readDir(char* dirname, EntryNum n, Entry &e)
         }
     }
 	return 0;
+}
+
+// -----------------------------------------------------------------------------
+
+/*
+-------------- TODO -------------- TODO --------------
+otvara fajl ili pravi novi
+*/
+File* KernelFS::open(char* fname, char mode)
+{
+    // doesExist?
+    //      vraca kernel file
+    //      kreira i vraca kernel file
+    return 0;
+}
+
+/*
+-------------- TODO -------------- TODO --------------
+brise fajl
+*/
+char KernelFS::deleteFile(char* fname)
+{
+    // obrisi ga iz foldera
+    // nadovezi *free
+    // veoma slicno kao i folder, ali je MT
+    return 0;
 }

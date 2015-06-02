@@ -9,6 +9,7 @@
 #include "cache.h"
 #include "fs.h"
 #include "pathparser.h"
+#include "misc.h"
 
 #define SOCL sizeof(ClusterNo)
 
@@ -35,8 +36,12 @@ struct Disk
     // cache
     CacheLRU cache;
 
+    // opened files
+    filetable::FileItem filetable;
+
     Disk(Partition* _p)
         : cache(CACHE_SIZE)
+        , filetable(0)
     {
         char w_buffer[2048];
         ClusterNo* buffer = (ClusterNo*)w_buffer;
