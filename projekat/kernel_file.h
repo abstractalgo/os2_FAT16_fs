@@ -1,3 +1,5 @@
+#include "misc.h"
+
 class KernelFile
 {
 public:
@@ -12,8 +14,10 @@ public:
     ~KernelFile();
 private:
 
-    Entry m_entry;
-    unsigned long m_caret;
+    Entry entry;
+    unsigned long caret;
+    char mod;
+    misc::FileAccessItem* threadtable;
 
     // lista pokazivaca na FIFO niti
     // trenutni modalitet

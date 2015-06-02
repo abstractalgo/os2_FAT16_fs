@@ -37,7 +37,7 @@ struct Disk
     CacheLRU cache;
 
     // opened files
-    filetable::FileItem filetable;
+    misc::FileItem* filetable;
 
     Disk(Partition* _p)
         : cache(CACHE_SIZE)
@@ -80,12 +80,8 @@ struct Disk
 int readCluster(Disk& _d, ClusterNo _id, char* _buffer);
 int writeCluster(Disk& _d, ClusterNo _id, const char* _buffer);
 
-char release(Disk& _d);
-char format(Disk& _d);
-
-bool getEntry(Disk& _d, Entry& _e, char* _fname);
-
 // helper
+bool getEntry(Disk& _d, Entry& _e, char* _fname);
 ClusterNo allocate(Disk& _d);
 void listDir(Disk& _d, Entry& _dir, Entry *& _entries);     // pravi niz entry-ja za zadati ulaz
 void tree(Disk& _d, bool info=true);                        // drvo

@@ -1,45 +1,45 @@
 #include "newdisk.h"
 
-char format(Disk& _d)
-{
-    char w_buffer[2048];
-    ClusterNo* buffer = (ClusterNo*)w_buffer;
-
-    // racunanje velicine
-    ClusterNo totalClsCnt = _d.partition->getNumOfClusters();
-    ClusterNo dataClsCnt = ((totalClsCnt - 1) * 512) / 513;
-    ClusterNo FATClsCnt = totalClsCnt - 1 - dataClsCnt;
-
-    //printf("************\nTotal: %d\nData: %d\nFAT: %d\n************\n", totalClsCnt, dataClsCnt, FATClsCnt);
-
-    // upis meta podataka
-    buffer[0] = 1;          // free node
-    buffer[1] = dataClsCnt; // FAT size
-    buffer[2] = 0;          // root dir
-    buffer[3] = 0;          // root size
-    _d.partition->writeCluster(0, w_buffer);
-
-    // formatiranje FAT tabele
-    ClusterNo left = dataClsCnt;
-    for (ClusterNo cid = 0; cid < FATClsCnt; cid++)
-    {
-        for (ClusterNo i = 0; i < 512; i++)
-        {
-            ClusterNo idx = (cid * 512) + i;
-            buffer[i] = idx + 1;
-            if (0 == idx)
-                buffer[0] = 0;
-            if (idx == dataClsCnt)
-            {
-                buffer[i] = 0;
-                break;
-            }
-        }
-        _d.partition->writeCluster(1+cid, w_buffer);
-    }
-
-    return 1;
-}
+//char format(Disk& _d)
+//{
+//    char w_buffer[2048];
+//    ClusterNo* buffer = (ClusterNo*)w_buffer;
+//
+//    // racunanje velicine
+//    ClusterNo totalClsCnt = _d.partition->getNumOfClusters();
+//    ClusterNo dataClsCnt = ((totalClsCnt - 1) * 512) / 513;
+//    ClusterNo FATClsCnt = totalClsCnt - 1 - dataClsCnt;
+//
+//    //printf("************\nTotal: %d\nData: %d\nFAT: %d\n************\n", totalClsCnt, dataClsCnt, FATClsCnt);
+//
+//    // upis meta podataka
+//    buffer[0] = 1;          // free node
+//    buffer[1] = dataClsCnt; // FAT size
+//    buffer[2] = 0;          // root dir
+//    buffer[3] = 0;          // root size
+//    _d.partition->writeCluster(0, w_buffer);
+//
+//    // formatiranje FAT tabele
+//    ClusterNo left = dataClsCnt;
+//    for (ClusterNo cid = 0; cid < FATClsCnt; cid++)
+//    {
+//        for (ClusterNo i = 0; i < 512; i++)
+//        {
+//            ClusterNo idx = (cid * 512) + i;
+//            buffer[i] = idx + 1;
+//            if (0 == idx)
+//                buffer[0] = 0;
+//            if (idx == dataClsCnt)
+//            {
+//                buffer[i] = 0;
+//                break;
+//            }
+//        }
+//        _d.partition->writeCluster(1+cid, w_buffer);
+//    }
+//
+//    return 1;
+//}
 
 char release(Disk& _d)
 {
