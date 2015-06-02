@@ -237,12 +237,16 @@ char KernelFS::createDir(char* dirname)
 }
 
 /*
--------------- TODO -------------- TODO --------------
 brise folder
 */
 char KernelFS::deleteDir(char* dirname)
 {
-    
+    uint8_t idx = dirname[0] - 65;
+    if (idx<0 || idx>25 || false == disks[idx].used)
+        return 0;
+
+    Disk& d = *disks[idx].disk;
+    return deleteEntry(d, dirname);
 }
 
 /*
@@ -303,7 +307,7 @@ File* KernelFS::open(char* fname, char mode)
         {
             // ranije otvoren fajl, stavi se na cekanje
             void* current_thread = GetCurrentThread();
-            request_file_access(temp->file->threadtable, current_thread);
+            //misc::request_file_access(temp->file->threadtable, current_thread);
             SuspendThread(current_thread);
             break;
         }
@@ -323,7 +327,7 @@ File* KernelFS::open(char* fname, char mode)
     }
 
     // povezi sa entry-jem
-    f->myImpl->entry = e;
+    //f->myImpl->entry = e;
 
     // modalitet
     f->myImpl->mod = mode;
@@ -340,8 +344,11 @@ brise fajl
 */
 char KernelFS::deleteFile(char* fname)
 {
-    // obrisi ga iz foldera
-    // nadovezi *free
-    // veoma slicno kao i folder, ali je MT
-    return 0;
+    // veoma slicno kao i brisanje foldera ali treba da je MT (tj, ne sme biti otvoren)
+    uint8_t idx = fname[0] - 65;
+    if (idx<0 || idx>25 || false == disks[idx].used)
+        return 0;
+
+    Disk& d = *disks[idx].disk;
+    return deleteEntry(d, fname);
 }

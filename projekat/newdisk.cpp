@@ -135,7 +135,8 @@ bool deleteEntry(Disk& _d, char* _path)
     PathParser ppath;
     parse(ppath, _path);
 
-    Entry parent_folder, ent;
+    Entry parent_folder;
+    Entry ent;
 
     // nadji parent folder
     if (getEntry(_d, parent_folder, combine(ppath, ppath.partsNum - 1)))
@@ -160,9 +161,11 @@ bool deleteEntry(Disk& _d, char* _path)
         }
         delete[] entries;
 
+        // ako nije nadjen, fuu~
         if (!fnd)
             return false;
 
+        // ako je neprazan folder, fuu~
         if (ent.attributes == 0x02 && ent.size != 0)
             return false;
 
@@ -181,7 +184,7 @@ bool deleteEntry(Disk& _d, char* _path)
         {
         }
     }
-    return 0;
+    return false;
 }
 
 // -----------------------------------------------------------------------------
