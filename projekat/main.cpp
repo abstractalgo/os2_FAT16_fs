@@ -43,6 +43,9 @@ int main(int argc, char** argv)
     //TREEDIRI(disk1);
     FS::createDir("A:\\AnaPetrv");
     FS::deleteDir("A:\\milica\\bmit\\huehue");
+    File* f = FS::open("A:\\dragan.txt", 'w');
+    TREEDIR(disk1);
+    delete f;
     TREEDIR(disk1);
     printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
     printf("Da li postoji putanja A:\\grim\\vfx? %s.\n", FS::doesExist("A:\\grim\\vfx") ? "Da" : "Ne");

@@ -1,5 +1,8 @@
 #include "kernel_file.h"
 
+/*
+-------------- TODO -------------- TODO --------------
+*/
 char KernelFile::write(BytesCnt cnt, char* buffer)
 {
     // alociraj nov prostor ako treba mesta
@@ -22,6 +25,9 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
     return 0;
 }
 
+/*
+-------------- TODO -------------- TODO --------------
+*/
 BytesCnt KernelFile::read(BytesCnt cnt, char* buffer)
 {
     // TODO
@@ -52,12 +58,18 @@ BytesCnt KernelFile::getFileSize()
     return entry.size;
 }
 
+/*
+-------------- TODO -------------- TODO --------------
+*/
 char KernelFile::truncate()
 {
     // TODO
     return 0;
 }
 
+/*
+-------------- TODO -------------- TODO --------------
+*/
 KernelFile::~KernelFile()
 {
     // TODO

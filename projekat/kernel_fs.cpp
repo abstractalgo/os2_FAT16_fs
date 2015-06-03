@@ -219,12 +219,35 @@ File* KernelFS::open(char* fname, char mode)
     f->myImpl = new KernelFile(d);
     Entry e;
     
-
-    if (!doesExist(fname))
+    // READ
+    if ('r' == mode)
     {
-        // napravi fajl.. TODO
+        if(!doesExist(fname))
+            return 0;
+        getEntry(d, e, fname);
+        f->myImpl->caret = 0;
     }
-    getEntry(d, e, fname);
+    // WRITE
+    else if ('w' == mode)
+    {
+        // pravi novi fajl
+        // ako postoji fajl istog imena i zatvoren je -> obrisi ga TODO
+        createEntry(d, fname);
+        getEntry(d, e, fname);
+        f->myImpl->caret = 0;
+    }
+    // APPEND
+    else if ('a' == mode)
+    {
+        if (!doesExist(fname))
+            return 0;
+        getEntry(d, e, fname);
+        f->myImpl->caret = e.size;
+    }
+    else
+    {
+        return 0;
+    }
 
     // povezi sa entry-jem
     f->myImpl->entry = e;
