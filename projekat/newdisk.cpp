@@ -33,25 +33,104 @@ ClusterNo allocate(Disk& _d)
     return /*offset(_d) +*/ freeNode;
 }
 
-bool matchName(Entry& e, char* name)
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+bool createEntry(Disk& _d, char* _fname)
 {
-    int i = 0, j = 0;
-    bool tacka = false;
-    while (name[i] != '\0')
+    PathParser ppath;
+    parse(ppath, _fname);
+
+    Entry parent_folder;
+
+    // nadji folder gde treba napraviti novi entry
+    if (getEntry(_d, parent_folder, combine(ppath, ppath.partsNum - 1)))
     {
-        if (name[i] == '.')
+        // napravi novi entry ... TODO
+        Entry ent;
+        ent.firstCluster = allocate(_d);
+        _d.FAT[ent.firstCluster] = 0;
+        for (uint8_t i = 0; i < 8; ent.name[i++] = '\0');
+        for (uint8_t i = 0; i < 3; ent.ext[i++] = '\0');
+        ent.size = 0;
+        
+        char* name = ppath.parts[ppath.partsNum - 1];
+        if (isFolder(name))
         {
-            tacka = true;
-            j = 0;
-            i++;
+            ent.attributes = 0x02;
+            memcpy(ent.name, name, strlen(name)*SOC);
         }
-        if ((tacka && e.ext[j] != name[i]) ||
-            (!tacka && e.name[j] != name[i]))
-            return false;
-        j++;
-        i++;
+        else
+        {
+            ent.attributes = 0x01;
+            uint8_t i = 0;
+            while (name[i] != '.') i++;
+            memcpy(ent.name, name, i*SOC);
+            memcpy(ent.ext, name + i + 1, (strlen(name) - i - 1)*SOC);
+        }
+
+        // nadji ili alociraj klaster sa dovoljno mesta
+        ClusterNo cid = parent_folder.firstCluster;
+        while (_d.FAT[cid] != 0) cid = _d.FAT[cid];
+        if (parent_folder.size > 0 && parent_folder.size % 102 == 0)
+        {
+            ClusterNo na = allocate(_d);
+            _d.FAT[cid] = na;
+            _d.FAT[na] = 0;
+            cid = na;
+        }
+
+        // upis novonapravljenog entry-ja u klaster
+        {
+            char* w_buffer = new char[2048];
+            Entry* entries = (Entry*)w_buffer;
+            readCluster(_d, cid, w_buffer);
+            entries[(parent_folder.size + 102) % 102] = ent;
+            writeCluster(_d, cid, w_buffer);
+            delete[] w_buffer;
+        }
+
+        // apdejtuj velicinu nadfoldera (jer je u njemu zapisana velicina parent_foldera)
+        if (parent_folder.attributes == 0x03)
+        {
+            _d.meta.rootSize++;
+        }
+        else
+        {
+            // nadji nad folder, za promeni velicine
+            Entry _dir;
+            getEntry(_d, _dir, combine(ppath, ppath.partsNum - 2));
+            char w_buffer[2048];
+            Entry* e_buffer = (Entry*)w_buffer;
+
+            ClusterNo brojUlaza = _dir.size;
+
+            ClusterNo brojKlastera = (_dir.size + 101) / 102;
+            ClusterNo preostalo = brojUlaza;
+            ClusterNo cid = _dir.firstCluster;
+            for (uint8_t i = 0; i < brojKlastera; i++)
+            {
+                readCluster(_d, cid, w_buffer);
+                e_buffer = (Entry*)w_buffer;
+                uint8_t limit = preostalo < 102 ? preostalo : 102;
+                bool fnd = false;
+                for (uint8_t eid = 0; eid < limit; eid++)
+                {
+                    if (e_buffer[eid].firstCluster == parent_folder.firstCluster)
+                    {
+                        fnd = true;
+                        e_buffer[eid].size++;
+                        writeCluster(_d, cid, w_buffer);
+                        break;
+                    }
+                }
+                if (fnd) break;
+                cid = _d.FAT[cid];
+            }
+        }
     }
-    return true;
+    return false;
 }
 
 bool getEntry(Disk& _d, Entry& _e, char* _fname)
@@ -107,29 +186,6 @@ bool getEntry(Disk& _d, Entry& _e, char* _fname)
     return false;
 }
 
-void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
-{
-    char w_buffer[2048];
-    Entry* e_buffer = (Entry*)w_buffer;
-
-    ClusterNo brojUlaza = _dir.size;
-    _entries = new Entry[brojUlaza];
-
-    ClusterNo brojKlastera = (_dir.size + 101) / 102;
-    ClusterNo preostalo = brojUlaza;
-    ClusterNo cid = _dir.firstCluster;
-    for (uint8_t i = 0; i < brojKlastera; i++)
-    {
-        readCluster(_d, cid, w_buffer);
-        uint8_t limit = preostalo < 102 ? preostalo : 102;
-        for (uint8_t eid = 0; eid < limit; eid++)
-        {
-            _entries[i * 102 + eid] = e_buffer[eid];
-        }
-        cid = _d.FAT[cid];
-    }
-}
-
 bool deleteEntry(Disk& _d, char* _path)
 {
     PathParser ppath;
@@ -180,11 +236,39 @@ bool deleteEntry(Disk& _d, char* _path)
 
         // ukloni iz naddirektorijuma TODO
         ClusterNo totalClusters;
-        if (parent_folder.size-idx < 102)
+        if (parent_folder.size - idx < 102)
         {
         }
     }
     return false;
+}
+
+bool writeEntry(Disk* _d, Entry& _e, BytesCnt _start, BytesCnt _cnt, char* _buffer)
+{
+    return false;
+}
+
+void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
+{
+    char w_buffer[2048];
+    Entry* e_buffer = (Entry*)w_buffer;
+
+    ClusterNo brojUlaza = _dir.size;
+    _entries = new Entry[brojUlaza];
+
+    ClusterNo brojKlastera = (_dir.size + 101) / 102;
+    ClusterNo preostalo = brojUlaza;
+    ClusterNo cid = _dir.firstCluster;
+    for (uint8_t i = 0; i < brojKlastera; i++)
+    {
+        readCluster(_d, cid, w_buffer);
+        uint8_t limit = preostalo < 102 ? preostalo : 102;
+        for (uint8_t eid = 0; eid < limit; eid++)
+        {
+            _entries[i * 102 + eid] = e_buffer[eid];
+        }
+        cid = _d.FAT[cid];
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -197,13 +281,14 @@ static void write(Disk& _d, Entry& _e, uint8_t _level, bool info)
     {
         for (uint8_t i = 0; i < _level; i++) printf("  ");
         printf("#--");
+        printf(" %.8s%c%.3s", _e.name, _e.attributes == 0x01 ? '.' : '\0', _e.attributes == 0x01 ? _e.ext : "");
     }
     
-    printf(" %s%c%s\n", _e.name, _e.attributes == 0x01 ? '.' : '\0', _e.attributes == 0x01 ? _e.ext : "");
     if (info)
     {
         printf(" [%s, %d, %d]", _e.attributes == 0x01 ? "f" : (_e.attributes == 0x02 ? "d" : (_e.attributes == 0x03 ? "r" : "u")), _e.firstCluster, _e.size);
     }   
+    putchar('\n');
 
     // ako je folder, nastavi ispis rekurzivno
     if (_e.attributes > 1)
@@ -224,8 +309,27 @@ void tree(Disk& _d, bool info)
     dir.attributes = 0x03;
     dir.firstCluster = _d.meta.rootDir;
     dir.size = _d.meta.rootSize;
-    for (uint8_t i = 0; i < 8; dir.name[i++] = '\0');
-    for (uint8_t i = 0; i < 3; dir.ext[i++] = '\0');
 
     write(_d, dir, 0, info);
+}
+
+bool matchName(Entry& e, char* name)
+{
+    int i = 0, j = 0;
+    bool tacka = false;
+    while (name[i] != '\0')
+    {
+        if (name[i] == '.')
+        {
+            tacka = true;
+            j = 0;
+            i++;
+        }
+        if ((tacka && e.ext[j] != name[i]) ||
+            (!tacka && e.name[j] != name[i]))
+            return false;
+        j++;
+        i++;
+    }
+    return true;
 }

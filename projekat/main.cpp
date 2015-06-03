@@ -12,8 +12,8 @@
 #define p_a_t_h "X:\\huehue\\hue\\3\\cetiri.pet"
 
 #define CBREAK printf("----------------------------------------------\n")
-#define TREEDIR(c) CBREAK;printf("%c:/",c);tree(*FS::myImpl->disks[c-65].disk, false);CBREAK
-#define TREEDIRI(c) tree(*FS::myImpl->disks[c-65].disk)
+#define TREEDIR(c) CBREAK;printf("%c:/\n",c);tree(*FS::myImpl->disks[c-65].disk, false);CBREAK
+#define TREEDIRI(c) CBREAK;printf("%c:/",c);tree(*FS::myImpl->disks[c-65].disk);CBREAK
 
 int main(int argc, char** argv)
 {
@@ -37,7 +37,8 @@ int main(int argc, char** argv)
     FS::createDir("A:\\ana");
     FS::createDir("A:\\milica");
     FS::createDir("A:\\milica\\bmit");
-    TREEDIR(disk1);
+    FS::createDir("A:\\milica\\bmit\\huehue");
+    TREEDIRI(disk1);
     printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
     printf("Da li postoji putanja A:\\grim\\vfx? %s.\n", FS::doesExist("A:\\grim\\vfx") ? "Da" : "Ne");
     //printf("Da li postoji putanja B:\\? %s.\n", FS::doesExist("B:\\") ? "Da" : "Ne");
@@ -49,15 +50,6 @@ int main(int argc, char** argv)
 
     delete p1;
     //delete p2;
-#endif
-
-//#define testpathparser
-#ifdef testpathparser
-
-    PathParser p;
-    parse(p, p_a_t_h);
-    printf("** %s\n", isValid(p)?"validno":"nevalidno");
-    printf("* %s\n", combine(p, 3));
 #endif
 
 	getchar();

@@ -87,11 +87,11 @@ ClusterNo allocate(Disk& _d);
 ClusterNo offset(Disk& _d);
 
 // managment-wise
-bool createEntry(Disk& _d, char* _fname);
-bool getEntry(Disk& _d, Entry& _e, char* _fname);
-bool deleteEntry(Disk& _d, char* _path);
-bool writeEntry(Disk* _d, Entry& _e, BytesCnt _cnt, char* _buffer);
-void listDir(Disk& _d, Entry& _dir, Entry *& _entries);
+bool createEntry(Disk& _d, char* _fname);                   // uradjeno
+bool getEntry(Disk& _d, Entry& _e, char* _fname);           // uradjeno
+bool deleteEntry(Disk& _d, char* _path);                    // (T)
+bool writeEntry(Disk*, Entry&, BytesCnt, BytesCnt, char*);  //
+void listDir(Disk& _d, Entry& _dir, Entry *& _entries);     // uradjeno
 
 // debug
 void tree(Disk& _d, bool info=true);
