@@ -39,6 +39,8 @@ int main(int argc, char** argv)
     FS::createDir("A:\\milica\\bmit");
     FS::createDir("A:\\milica\\bmit\\huehue");
     TREEDIRI(disk1);
+    FS::deleteDir("A:\\ana");
+    TREEDIRI(disk1);
     printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
     printf("Da li postoji putanja A:\\grim\\vfx? %s.\n", FS::doesExist("A:\\grim\\vfx") ? "Da" : "Ne");
     //printf("Da li postoji putanja B:\\? %s.\n", FS::doesExist("B:\\") ? "Da" : "Ne");

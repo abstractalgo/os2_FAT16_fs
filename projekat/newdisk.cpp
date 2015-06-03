@@ -229,18 +229,79 @@ bool deleteEntry(Disk& _d, char* _path)
         ClusterNo cid = ent.firstCluster;
         while (cid != 0)
         {
+            ClusterNo next = _d.FAT[cid];
             _d.FAT[cid] = _d.meta.freeNode;
             _d.meta.freeNode = cid;
-            cid = _d.FAT[cid];
+            cid = next;
         }
 
-        // ukloni iz naddirektorijuma TODO
-        ClusterNo totalClusters;
-        if (parent_folder.size - idx < 102)
+        // ukloni iz parent foldera
+        Entry last_entry;
+        ClusterNo last_cid = parent_folder.firstCluster, ent_cid = last_cid;
+        while (_d.FAT[last_cid] != 0)
         {
+            last_cid = _d.FAT[last_cid];
+            if (idx < 103) ent_cid = last_cid;
+            idx -= 102;
+        }
+        char w_buffer[2048];
+        Entry* e_buffer = (Entry*)w_buffer;
+        readCluster(_d, last_cid, w_buffer);
+        last_entry = e_buffer[(parent_folder.size+102) % 102];
+        readCluster(_d, ent_cid, w_buffer);
+        e_buffer[idx] = last_entry;
+        writeCluster(_d, ent_cid, w_buffer);
+
+        // smanji parent folder ako treba sto se broja klastera tice
+        if (parent_folder.size - 1 > 0 && (parent_folder.size + 102) % 102 == 0)
+        {
+            ClusterNo cl = parent_folder.firstCluster;
+            while (_d.FAT[_d.FAT[cl]] != 0) cl = _d.FAT[cl];
+            _d.FAT[cl] = 0;
+            _d.FAT[last_cid] = _d.meta.freeNode;
+            _d.meta.freeNode = last_cid;
+        }
+        
+        // smanji velicinu u nadfolderu
+        if (parent_folder.attributes == 0x03)
+        {
+            _d.meta.rootSize--;
+        }
+        else
+        {
+            // nadji nad folder, za promeni velicine
+            Entry _dir;
+            getEntry(_d, _dir, combine(ppath, ppath.partsNum - 2));
+            char w_buffer[2048];
+            Entry* e_buffer = (Entry*)w_buffer;
+
+            ClusterNo brojUlaza = _dir.size;
+
+            ClusterNo brojKlastera = (_dir.size + 101) / 102;
+            ClusterNo preostalo = brojUlaza;
+            ClusterNo cid = _dir.firstCluster;
+            for (uint8_t i = 0; i < brojKlastera; i++)
+            {
+                readCluster(_d, cid, w_buffer);
+                e_buffer = (Entry*)w_buffer;
+                uint8_t limit = preostalo < 102 ? preostalo : 102;
+                bool fnd = false;
+                for (uint8_t eid = 0; eid < limit; eid++)
+                {
+                    if (e_buffer[eid].firstCluster == parent_folder.firstCluster)
+                    {
+                        fnd = true;
+                        e_buffer[eid].size--;
+                        writeCluster(_d, cid, w_buffer);
+                        break;
+                    }
+                }
+                if (fnd) break;
+                cid = _d.FAT[cid];
+            }
         }
     }
-    return false;
+    return true;
 }
 
 bool writeEntry(Disk* _d, Entry& _e, BytesCnt _start, BytesCnt _cnt, char* _buffer)
