@@ -89,8 +89,7 @@ ClusterNo offset(Disk& _d);
 // managment-wise
 bool createEntry(Disk& _d, char* _fname);                   // uradjeno
 bool getEntry(Disk& _d, Entry& _e, char* _fname);           // uradjeno
-bool deleteEntry(Disk& _d, char* _path);                    // (T)
-bool writeEntry(Disk*, Entry&, BytesCnt, BytesCnt, char*);  //
+bool deleteEntry(Disk& _d, char* _path);                    // uradjeno
 void listDir(Disk& _d, Entry& _dir, Entry *& _entries);     // uradjeno
 
 // debug

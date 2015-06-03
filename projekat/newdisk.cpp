@@ -304,11 +304,6 @@ bool deleteEntry(Disk& _d, char* _path)
     return true;
 }
 
-bool writeEntry(Disk* _d, Entry& _e, BytesCnt _start, BytesCnt _cnt, char* _buffer)
-{
-    return false;
-}
-
 void listDir(Disk& _d, Entry& _dir, Entry *& _entries)
 {
     char w_buffer[2048];

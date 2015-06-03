@@ -216,7 +216,7 @@ File* KernelFS::open(char* fname, char mode)
 
     // otvaranje fajla
     File* f = new File;
-    f->myImpl = new KernelFile;
+    f->myImpl = new KernelFile(d);
     Entry e;
     
 

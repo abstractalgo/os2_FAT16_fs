@@ -1,5 +1,10 @@
 #include "misc.h"
 #include "pathparser.h"
+#include "part.h"
+#include "stdio.h"
+#include <windows.h>
+#include "fs.h"
+#include "newdisk.h"
 
 class KernelFile
 {
@@ -20,8 +25,9 @@ private:
     char mod;
     misc::FileAccessItem* threadtable;
     PathParser ppath;
+    Disk& d;
 
     friend class FS;
     friend class KernelFS;
-    KernelFile();
+    KernelFile(Disk& _d);
 };
