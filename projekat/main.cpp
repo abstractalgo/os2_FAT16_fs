@@ -1,16 +1,13 @@
-﻿#include "part.h"
+﻿#include "settings.h"
+#ifndef testapp
+
 #include <stdio.h>
-#include <stdlib.h>
-#include <direct.h>
+
 #include "fs.h"
+#include "part.h"
 #include "kernel_fs.h"
-#include "pathparser.h"
-#include "cache.h"
 
 #define MARK(t) printf("--- "t" ---\n")
-
-#define p_a_t_h "X:\\huehue\\hue\\3\\cetiri.pet"
-
 #define CBREAK printf("----------------------------------------------\n")
 #define TREEDIR(c) CBREAK;printf("%c:/",c);tree(*FS::myImpl->disks[c-65].disk, false);CBREAK
 #define TREEDIRI(c) CBREAK;printf("%c:/",c);tree(*FS::myImpl->disks[c-65].disk);CBREAK
@@ -18,8 +15,7 @@
 int main(int argc, char** argv)
 {
 
-#define testapp
-#ifdef testapp
+
 
     Partition *p1 = new Partition("p1.ini");
     //Partition *p2 = new Partition("p2.ini");
@@ -56,8 +52,10 @@ int main(int argc, char** argv)
 
     delete p1;
     //delete p2;
-#endif
+
 
 	getchar();
 	return 0;
 }
+
+#endif

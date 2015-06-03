@@ -7,7 +7,7 @@
 #include "newdisk.h"
 #include "file.h"
 #include "kernel_file.h"
-#include "misc.h"
+#include "filemt.h"
 
 class KernelFS
 {

@@ -9,7 +9,7 @@
 #define AA_MB <<20
 #define AA_GB <<30
 
-#define AA_SIZE 20##AA_MB    // 20MB
+#define AA_SIZE 20ul<<20
 
 namespace aa
 {

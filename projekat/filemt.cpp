@@ -1,15 +1,15 @@
-#include "misc.h"
+#include "filemt.h"
 
-void misc::register_fopen(FileItem*& _root, KernelFile* _f)
+void filemt::register_fopen(OpenedFile*& _root, KernelFile* _f)
 {
-    FileItem* fi = new FileItem(_f, _root);
+    OpenedFile* fi = new OpenedFile(_f, _root);
     _root = fi;
 }
 
-void misc::unregister_fopen(FileItem*& _root, KernelFile* _f)
+void filemt::unregister_fopen(OpenedFile*& _root, KernelFile* _f)
 {
-    FileItem* temp = _root;
-    FileItem* old = 0;
+    OpenedFile* temp = _root;
+    OpenedFile* old = 0;
     while (temp)
     {
         if (temp->file == _f)
@@ -29,16 +29,16 @@ void misc::unregister_fopen(FileItem*& _root, KernelFile* _f)
     }
 }
 
-void misc::request_file_access(FileAccessItem*& _root, void* _thread)
+void filemt::request_file_access(WaitingThread*& _root, void* _thread)
 {
-    FileAccessItem* fai = new FileAccessItem(_thread, _root);
+    WaitingThread* fai = new WaitingThread(_thread, _root);
     _root = fai;
 }
 
-void misc::release_file_access(FileAccessItem*& _root, void* _thread)
+void filemt::release_file_access(WaitingThread*& _root, void* _thread)
 {
-    FileAccessItem* temp = _root;
-    FileAccessItem* old = 0;
+    WaitingThread* temp = _root;
+    WaitingThread* old = 0;
     while (temp)
     {
         if (temp->thread == _thread)

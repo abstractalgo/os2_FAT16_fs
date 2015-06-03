@@ -1,10 +1,10 @@
-#include "misc.h"
-#include "pathparser.h"
-#include "part.h"
-#include "stdio.h"
+#pragma once
+
+#include <stdio.h>
 #include <windows.h>
 #include "fs.h"
 #include "newdisk.h"
+#include "filemt.h"
 
 class KernelFile
 {
@@ -23,7 +23,7 @@ private:
     Entry entry;
     unsigned long caret;
     char mod;
-    misc::FileAccessItem* threadtable;
+    filemt::WaitingThread* threadtable;
     PathParser ppath;
     Disk& d;
 

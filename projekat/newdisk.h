@@ -9,7 +9,7 @@
 #include "cache.h"
 #include "fs.h"
 #include "pathparser.h"
-#include "misc.h"
+#include "filemt.h"
 
 #define SOCL sizeof(ClusterNo)
 
@@ -37,7 +37,7 @@ struct Disk
     CacheLRU cache;
 
     // opened files
-    misc::FileItem* filetable;
+    filemt::OpenedFile* filetable;
 
     Disk(Partition* _p)
         : cache(CACHE_SIZE)

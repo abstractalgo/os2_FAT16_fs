@@ -193,7 +193,7 @@ File* KernelFS::open(char* fname, char mode)
     Disk& d = *disks[idx].disk;
 
     // proverava da li je vec otvaran fajl
-    misc::FileItem* temp = d.filetable;
+    filemt::OpenedFile* temp = d.filetable;
     char* name1, *name2;
     name1 = combine(ppath, ppath.partsNum);
     while (temp)
@@ -205,7 +205,7 @@ File* KernelFS::open(char* fname, char mode)
         {
             // ranije otvoren fajl, stavi se na cekanje
             void* current_thread = GetCurrentThread();
-            misc::request_file_access(temp->file->threadtable, current_thread);
+            filemt::request_file_access(temp->file->threadtable, current_thread);
             SuspendThread(current_thread);
             break;
         }
