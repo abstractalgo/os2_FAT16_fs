@@ -247,7 +247,7 @@ bool deleteEntry(Disk& _d, char* _path)
         char w_buffer[2048];
         Entry* e_buffer = (Entry*)w_buffer;
         readCluster(_d, last_cid, w_buffer);
-        last_entry = e_buffer[(parent_folder.size+102) % 102];
+        last_entry = e_buffer[(parent_folder.size+102) % 102-1];
         readCluster(_d, ent_cid, w_buffer);
         e_buffer[idx] = last_entry;
         writeCluster(_d, ent_cid, w_buffer);
