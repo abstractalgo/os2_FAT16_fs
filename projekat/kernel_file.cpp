@@ -21,7 +21,34 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
         }
     }
 
-    //
+    // dodji do odgovarajuceg klastera gde je caret
+    ClusterNo cid = entry.firstCluster;
+    {
+        BytesCnt _ = caret;
+        while (_ > 2048)
+        {
+            _ -= 2048;
+            cid = d.FAT[cid];
+        }
+    }
+
+    // upisi
+    BytesCnt left = cnt;
+    BytesCnt _start=caret, _cnt=0;
+    char* w_buffer = new char[2048];
+    while (left > 0)
+    {
+        _start = (_start + _cnt) % 2048;
+        _cnt = (left + _start > 2048) ? (left % 2048 - _start) : (left - caret);
+
+        readCluster(d, cid, w_buffer);
+        memcpy(w_buffer + _start, buffer + (cnt - left), _cnt);
+        writeCluster(d, cid, w_buffer);
+
+        cid = d.FAT[cid];
+        left -= _cnt;
+    }
+    delete[] w_buffer;
     return 0;
 }
 
