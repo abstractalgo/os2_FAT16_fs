@@ -49,6 +49,9 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
         left -= _cnt;
     }
     delete[] w_buffer;
+
+    // uvecaj
+    entry.size += cnt;
     return 0;
 }
 

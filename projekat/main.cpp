@@ -14,13 +14,11 @@
 
 int main(int argc, char** argv)
 {
-
-
-
     Partition *p1 = new Partition("p1.ini");
     //Partition *p2 = new Partition("p2.ini");
 
-    //MARK("Mount & format 1");
+    //MARK("Mount & format 1");sta
+
     char disk1 = FS::mount(p1);
     FS::format(disk1);
 
@@ -40,6 +38,8 @@ int main(int argc, char** argv)
     FS::createDir("A:\\AnaPetrv");
     FS::deleteDir("A:\\milica\\bmit\\huehue");
     File* f = FS::open("A:\\dragan.txt", 'w');
+    char* ble = "dragan je kralj";
+    f->write(16, ble);
     TREEDIR(disk1);
     delete f;
     TREEDIR(disk1);

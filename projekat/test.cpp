@@ -1,5 +1,5 @@
 #include "settings.h"
-#ifdef testapp
+
 
 #include"testprimer.h"
 
@@ -31,6 +31,8 @@ ostream& operator<<(ostream &os, const Entry &E){
     name[12] = 0;
     return os << name << " [" << E.size << ']';
 }
+
+#ifdef testapp
 
 int main(){
     clock_t startTime, endTime;

@@ -15,6 +15,7 @@
     </Filter>
     <Filter Include="test">
       <UniqueIdentifier>{9833a95a-7034-41d9-8c5b-913dffad6925}</UniqueIdentifier>
+      <ParseFiles>true</ParseFiles>
     </Filter>
   </ItemGroup>
   <ItemGroup>
