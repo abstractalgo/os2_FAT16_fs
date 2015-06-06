@@ -1,4 +1,5 @@
 #include "kernel_file.h"
+#include "settings.h"
 
 char KernelFile::write(BytesCnt cnt, char* buffer)
 {
@@ -13,7 +14,7 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
         cid = d.FAT[cid];
     }
     ClusterNo diff = cnt - (num*2048 - caret);
-    if (diff > 0)
+    if (cnt > num * 2048 - caret)
     {
         uint8_t ccnt = (diff + 2047) / 2048;
         for (uint8_t i = 0; i < ccnt; i++)
@@ -24,7 +25,7 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
             cid = nc;
         }
     }
-
+    //FATty(ppath.disk);
     // dodji do odgovarajuceg klastera gde je caret
     cid = entry.firstCluster;
     {
@@ -80,7 +81,7 @@ BytesCnt KernelFile::read(BytesCnt cnt, char* buffer)
     while (left > 0)
     {
         _start = (_start + _cnt) % 2048;
-        _cnt = (left + _start > 2048) ? (left - (left + _start) % 2048) : (left - caret);
+        _cnt = (left + _start > 2048) ? (left - ((left + _start) % 2048)) : (left);
 
         readCluster(d, cid, w_buffer);
         memcpy(buffer + (read - left), w_buffer + _start, _cnt);

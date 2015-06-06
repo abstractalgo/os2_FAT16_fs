@@ -82,7 +82,6 @@
   <ItemGroup>
     <ClInclude Include="allocator.h" />
     <ClInclude Include="cache.h" />
-    <ClInclude Include="docs.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="fs.h" />
     <ClInclude Include="kernel_file.h" />

@@ -72,9 +72,6 @@
     <ClInclude Include="file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="docs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="kernel_fs.h">
       <Filter>Header Files</Filter>
     </ClInclude>

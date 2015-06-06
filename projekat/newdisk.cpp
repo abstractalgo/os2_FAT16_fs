@@ -30,6 +30,7 @@ ClusterNo allocate(Disk& _d)
 {
     ClusterNo freeNode = _d.meta.freeNode;
     _d.meta.freeNode = _d.FAT[_d.meta.freeNode];
+    _d.FAT[freeNode] = 0;
     return /*offset(_d) +*/ freeNode;
 }
 
@@ -47,7 +48,7 @@ bool createEntry(Disk& _d, char* _fname)
     // nadji folder gde treba napraviti novi entry
     if (getEntry(_d, parent_folder, combine(ppath, ppath.partsNum - 1)))
     {
-        // napravi novi entry ... TODO
+        // napravi novi entry
         Entry ent;
         ent.firstCluster = allocate(_d);
         _d.FAT[ent.firstCluster] = 0;

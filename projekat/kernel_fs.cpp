@@ -179,7 +179,6 @@ char KernelFS::readDir(char* dirname, EntryNum n, Entry &e)
 // -----------------------------------------------------------------------------
 
 /*
--------------- TODO -------------- TODO --------------
 otvara fajl ili pravi novi
 */
 File* KernelFS::open(char* fname, char mode)
@@ -265,16 +264,36 @@ File* KernelFS::open(char* fname, char mode)
 }
 
 /*
--------------- TODO -------------- TODO --------------
 brise fajl
 */
 char KernelFS::deleteFile(char* fname)
 {
+    PathParser ppath;
+    parse(ppath, fname);
     // veoma slicno kao i brisanje foldera ali treba da je MT (tj, ne sme biti otvoren)
-    uint8_t idx = fname[0] - 65;
+    uint8_t idx = ppath.disk - 65;
     if (idx<0 || idx>25 || false == disks[idx].used)
         return 0;
 
     Disk& d = *disks[idx].disk;
+
+    OpenedFilesTable temp = d.filetable;
+    char* name1, *name2;
+    name1 = combine(ppath, ppath.partsNum);
+    while (temp)
+    {
+        name2 = combine(temp->file->ppath, temp->file->ppath.partsNum);
+        if (0 == strcmp(name1, name2))
+        {
+            // otvoren fajl
+            return 0;
+            break;
+        }
+        delete[] name2;
+        temp = temp->next;
+    }
+    delete[] name1;
+
     return deleteEntry(d, fname);
+    return 1;
 }
