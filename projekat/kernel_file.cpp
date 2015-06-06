@@ -1,17 +1,21 @@
 #include "kernel_file.h"
 
-/*
--------------- TODO -------------- TODO --------------
-*/
 char KernelFile::write(BytesCnt cnt, char* buffer)
 {
+    ClusterNo cid = entry.firstCluster;
+    
+
     // alociraj nov prostor ako treba mesta
-    ClusterNo diff = cnt - (entry.size - caret);
+    uint8_t num = 1;
+    while (d.FAT[cid] != 0)
+    {
+        num++;
+        cid = d.FAT[cid];
+    }
+    ClusterNo diff = cnt - (num*2048 - caret);
     if (diff > 0)
     {
         uint8_t ccnt = (diff + 2047) / 2048;
-        ClusterNo cid = entry.firstCluster;
-        while (d.FAT[cid] != 0) cid = d.FAT[cid];
         for (uint8_t i = 0; i < ccnt; i++)
         {
             ClusterNo nc = allocate(d);
@@ -22,7 +26,7 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
     }
 
     // dodji do odgovarajuceg klastera gde je caret
-    ClusterNo cid = entry.firstCluster;
+    cid = entry.firstCluster;
     {
         BytesCnt _ = caret;
         while (_ > 2048)
@@ -39,10 +43,10 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
     while (left > 0)
     {
         _start = (_start + _cnt) % 2048;
-        _cnt = (left + _start > 2048) ? (left % 2048 - _start) : (left - caret);
+        _cnt = (left + _start > 2048) ? (left-(left + _start)%2048) : (left - caret);
 
         readCluster(d, cid, w_buffer);
-        memcpy(w_buffer + _start, buffer + (cnt - left), _cnt);
+        memcpy(buffer + (cnt - left), w_buffer + _start, _cnt);
         writeCluster(d, cid, w_buffer);
 
         cid = d.FAT[cid];
@@ -52,7 +56,7 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
 
     // uvecaj
     entry.size += cnt;
-    return 0;
+    return 1;
 }
 
 /*
@@ -60,7 +64,34 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
 */
 BytesCnt KernelFile::read(BytesCnt cnt, char* buffer)
 {
-    // TODO
+    // dodji do odgovarajuceg klastera gde je caret
+    ClusterNo cid = entry.firstCluster;
+    {
+        BytesCnt _ = caret;
+        while (_ > 2048)
+        {
+            _ -= 2048;
+            cid = d.FAT[cid];
+        }
+    }
+
+    // upisi
+    BytesCnt left = cnt;
+    BytesCnt _start = caret, _cnt = 0;
+    char* w_buffer = new char[2048];
+    while (left > 0)
+    {
+        _start = (_start + _cnt) % 2048;
+        _cnt = (left + _start > 2048) ? (left - (left + _start) % 2048) : (left - caret);
+
+        readCluster(d, cid, w_buffer);
+        memcpy(buffer + (cnt - left), w_buffer + _start, _cnt);
+
+        cid = d.FAT[cid];
+        left -= _cnt;
+    }
+    delete[] w_buffer;
+
     return 0;
 }
 
@@ -102,7 +133,40 @@ char KernelFile::truncate()
 */
 KernelFile::~KernelFile()
 {
-    // TODO
+    // otpustanje MT
+    // upis entry-ja nazad
+    Entry dir;
+    getEntry(d, dir, combine(ppath, ppath.partsNum - 1));
+    Entry* ents = new Entry[dir.size];
+    listDir(d, dir, ents);
+
+    // nadji
+    uint16_t idx = ~0;
+    for (uint16_t i = 0; i < dir.size; i++)
+    {
+        if (strncmp(ents[i].name, entry.name, 8)==0 && strncmp(ents[i].ext, entry.ext, 3)==0)
+        {
+            idx = i;
+            break;
+        }
+    }
+    delete[] ents;
+
+    // upisi ga u memoriju
+    ClusterNo cid = dir.firstCluster;
+    {
+        uint16_t _ = idx;
+        while (idx>102)
+        {
+            _ -= 102;
+            cid = d.FAT[cid];
+        }
+    }
+    char w_buffer[2048];
+    Entry* e_buffer = (Entry*)w_buffer;
+    readCluster(d, cid, w_buffer);
+    e_buffer[idx] = entry;
+    writeCluster(d, cid, w_buffer);
 }
 
 // private

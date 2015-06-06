@@ -9,17 +9,17 @@
 class KernelFile
 {
 public:
-    char write(BytesCnt, char* buffer);
-    BytesCnt read(BytesCnt, char* buffer);
-    char seek(BytesCnt);
+    char write(BytesCnt, char* buffer);     // uradjeno
+    BytesCnt read(BytesCnt, char* buffer);  //
+    char seek(BytesCnt);                    // uradjeno
 
-    BytesCnt filePos();
-    char eof();
-    BytesCnt getFileSize();
-    char truncate();
-    ~KernelFile();
+    BytesCnt filePos();                     // uradjeno
+    char eof();                             // uradjeno
+    BytesCnt getFileSize();                 // uradjeno
+    char truncate();                        //
+    ~KernelFile();                          //
 private:
-
+    uint16_t num;
     Entry entry;
     unsigned long caret;
     char mod;
