@@ -91,6 +91,7 @@
     <ClInclude Include="newdisk.h" />
     <ClInclude Include="part.h" />
     <ClInclude Include="pathparser.h" />
+    <ClInclude Include="semaphore.h" />
     <ClInclude Include="settings.h" />
     <ClInclude Include="testprimer.h" />
   </ItemGroup>

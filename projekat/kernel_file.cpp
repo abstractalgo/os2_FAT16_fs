@@ -59,9 +59,6 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
     return 1;
 }
 
-/*
--------------- TODO -------------- TODO --------------
-*/
 BytesCnt KernelFile::read(BytesCnt cnt, char* buffer)
 {
     // dodji do odgovarajuceg klastera gde je caret
@@ -133,7 +130,6 @@ char KernelFile::truncate()
 */
 KernelFile::~KernelFile()
 {
-    // otpustanje MT
     // upis entry-ja nazad
     Entry dir;
     getEntry(d, dir, combine(ppath, ppath.partsNum - 1));
@@ -167,6 +163,9 @@ KernelFile::~KernelFile()
     readCluster(d, cid, w_buffer);
     e_buffer[idx] = entry;
     writeCluster(d, cid, w_buffer);
+
+    // otpustanje MT
+    filemt::release_file_access(threadtable);
 }
 
 // private

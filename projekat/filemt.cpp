@@ -29,31 +29,30 @@ void filemt::unregister_fopen(OpenedFile*& _root, KernelFile* _f)
     }
 }
 
-void filemt::request_file_access(WaitingThread*& _root, void* _thread)
-{
-    WaitingThread* fai = new WaitingThread(_thread, _root);
+void filemt::request_file_access(AccessSem*& _root){
+    AccessSem* fai = new AccessSem(CreateSemaphore(0,1,1,0), _root);
     _root = fai;
+    wait(fai->sem);
 }
 
-void filemt::release_file_access(WaitingThread*& _root, void* _thread)
+void filemt::release_file_access(AccessSem*& _root)
 {
-    WaitingThread* temp = _root;
-    WaitingThread* old = 0;
-    while (temp)
+    AccessSem* temp = _root;
+    AccessSem* old = 0;
+
+    if (!temp)
+        return;
+
+    while (temp->next)
     {
-        if (temp->thread == _thread)
-        {
-            if (old)
-            {
-                old->next = temp->next;
-            }
-            else
-            {
-                _root = temp->next;
-            }
-            delete temp; // check
-        }
+        
         old = temp;
         temp = temp->next;
     }
+    signal(temp->sem);
+    if (old)
+    {
+        old->next = 0;
+    }
+    delete temp;
 }

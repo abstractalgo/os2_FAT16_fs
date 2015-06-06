@@ -193,26 +193,23 @@ File* KernelFS::open(char* fname, char mode)
     Disk& d = *disks[idx].disk;
 
     // proverava da li je vec otvaran fajl
-    //filemt::OpenedFile* temp = d.filetable;
-    //char* name1, *name2;
-    //name1 = combine(ppath, ppath.partsNum);
-    //while (temp)
-    //{
-    //    name2 = combine(temp->file->ppath, temp->file->ppath.partsNum);
-    //    int __cmp = strcmp(name1, name2);
-    //    delete[] name2;
-    //    if ( 0 == __cmp )
-    //    {
-    //        // ranije otvoren fajl, stavi se na cekanje
-    //        void* current_thread = GetCurrentThread();
-    //        filemt::request_file_access(temp->file->threadtable, current_thread);
-    //        SuspendThread(current_thread);
-    //        break;
-    //    }
-    //    
-    //    temp = temp->next;
-    //}
-    //delete[] name1;
+    OpenedFilesTable temp = d.filetable;
+    char* name1, *name2;
+    name1 = combine(ppath, ppath.partsNum);
+    while (temp)
+    {
+        name2 = combine(temp->file->ppath, temp->file->ppath.partsNum);
+        if (0 == strcmp(name1, name2))
+        {
+            // ranije otvoren fajl, stavi se na cekanje
+            void* current_thread = GetCurrentThread();
+            filemt::request_file_access(temp->file->threadtable);
+            break;
+        }
+        delete[] name2;
+        temp = temp->next;
+    }
+    delete[] name1;
 
     // otvaranje fajla
     File* f = new File;

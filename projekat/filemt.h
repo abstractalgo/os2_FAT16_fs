@@ -1,5 +1,7 @@
 #pragma once
 
+#include "semaphore.h"
+
 class KernelFile;
 
 namespace filemt
@@ -20,16 +22,22 @@ namespace filemt
 
     // ------------------ struct FileAccessItem --------------------
 
-    struct WaitingThread
+    struct AccessSem
     {
-        void* thread;
-        WaitingThread* next;
-        WaitingThread(void* _thread = 0, WaitingThread* _next = 0)
-            : thread(_thread)
+        Semaphore sem;
+        AccessSem* next;
+        AccessSem(void* _sem = 0, AccessSem* _next = 0)
+            : sem(_sem)
             , next(_next)
         {}
+        ~AccessSem()
+        {
+            CloseHandle(sem);
+        }
     };
 
-    void request_file_access(WaitingThread*& _root, void* _thread);
-    void release_file_access(WaitingThread*& _root, void* _thread);
+    void request_file_access(AccessSem*& _root);
+    void release_file_access(AccessSem*& _root);
 }
+
+typedef filemt::OpenedFile* OpenedFilesTable;

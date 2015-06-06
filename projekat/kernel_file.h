@@ -10,7 +10,7 @@ class KernelFile
 {
 public:
     char write(BytesCnt, char* buffer);     // uradjeno
-    BytesCnt read(BytesCnt, char* buffer);  //
+    BytesCnt read(BytesCnt, char* buffer);  // uradjeno
     char seek(BytesCnt);                    // uradjeno
 
     BytesCnt filePos();                     // uradjeno
@@ -23,7 +23,7 @@ private:
     Entry entry;
     unsigned long caret;
     char mod;
-    filemt::WaitingThread* threadtable;
+    filemt::AccessSem* threadtable;
     PathParser ppath;
     Disk& d;
 
