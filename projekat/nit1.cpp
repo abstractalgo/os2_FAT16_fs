@@ -89,12 +89,13 @@ DWORD WINAPI nit1run(){
 
     //4.blok
     {
+
         Entry D[64];
         p1 = FS::mount(partition1);
         char rootpath[] = "1:\\";
         rootpath[0] = p1;
         int lim = 0, fin = 0;
-        while (!fin){
+        while (!fin) {
             if (FS::readDir(rootpath, lim, D[lim]) == 2)
                 fin = 1;
             else

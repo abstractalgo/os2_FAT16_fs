@@ -77,11 +77,7 @@ struct Disk
         filetable = 0;
     }
 
-    ~Disk()
-    {
-        // TODO wait for opened files to empty
-        delete[] FAT;
-    }
+    ~Disk();
 };
 
 // cluster-wise

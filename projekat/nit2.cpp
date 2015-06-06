@@ -12,13 +12,11 @@ DWORD WINAPI nit2run(){
         char filepath[] = "2:\\fajl2.dat";
         filepath[0] = p2;
         File *f = FS::open(filepath, 'w');
-        writefopens();
         wait(mutex); cout << "Nit2: Kreiran fajl 'fajl2.dat'" << endl; signal(mutex);
         f->write(ulazSize, ulazBuffer);
         wait(mutex); cout << "Nit2: Prepisan sadrzaj 'ulaz.dat' u 'fajl2.dat'" << endl; signal(mutex);
         delete f;
         wait(mutex); cout << "Nit2: zatvoren fajl 'fajl2.dat'" << endl; signal(mutex);
-        writefopens();
     }
     wait(mutex); cout << "Nit2: wait 1" << endl; signal(mutex);
     wait(sem12);//ceka nit 1
@@ -106,6 +104,7 @@ DWORD WINAPI nit2run(){
     signal(sem21);//12. signal
 
     wait(mutex); cout << "Nit2: Zavrsena!" << endl; signal(mutex);
+    writefopens();
     signal(semMain);
     return 0;
 }
