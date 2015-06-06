@@ -73,7 +73,8 @@ BytesCnt KernelFile::read(BytesCnt cnt, char* buffer)
     }
 
     // upisi
-    BytesCnt left = cnt;
+    BytesCnt left = cnt > entry.size - caret ? entry.size - caret : cnt;
+    BytesCnt read = left;
     BytesCnt _start = caret, _cnt = 0;
     char* w_buffer = new char[2048];
     while (left > 0)
@@ -82,14 +83,14 @@ BytesCnt KernelFile::read(BytesCnt cnt, char* buffer)
         _cnt = (left + _start > 2048) ? (left - (left + _start) % 2048) : (left - caret);
 
         readCluster(d, cid, w_buffer);
-        memcpy(buffer + (cnt - left), w_buffer + _start, _cnt);
+        memcpy(buffer + (read - left), w_buffer + _start, _cnt);
 
         cid = d.FAT[cid];
         left -= _cnt;
     }
     delete[] w_buffer;
 
-    return 0;
+    return read;
 }
 
 char KernelFile::seek(BytesCnt cnt)

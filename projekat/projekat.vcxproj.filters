@@ -99,10 +99,10 @@
     <ClInclude Include="testprimer.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="settings.h">
+    <ClInclude Include="semaphore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="semaphore.h">
+    <ClInclude Include="settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

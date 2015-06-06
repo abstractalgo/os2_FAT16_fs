@@ -3,6 +3,7 @@
 #include"fs.h"
 #include"file.h"
 #include"part.h"
+#include "settings.h"
 
 #include<iostream>
 #include<fstream>

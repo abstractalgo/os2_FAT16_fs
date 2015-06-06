@@ -1,6 +1,3 @@
-#include "settings.h"
-
-
 #include"testprimer.h"
 
 using namespace std;

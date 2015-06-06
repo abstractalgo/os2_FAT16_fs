@@ -1,3 +1,5 @@
+#pragma once
+
 class KernelFile;
 
 class File
