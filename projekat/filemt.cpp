@@ -22,7 +22,7 @@ void filemt::unregister_fopen(OpenedFile*& _root, KernelFile* _f)
             {
                 _root = temp->next;
             }
-            delete temp; // check
+            break;
         }
         old = temp;
         temp = temp->next;
@@ -30,7 +30,7 @@ void filemt::unregister_fopen(OpenedFile*& _root, KernelFile* _f)
 }
 
 void filemt::request_file_access(AccessSem*& _root){
-    AccessSem* fai = new AccessSem(CreateSemaphore(0,1,1,0), _root);
+    AccessSem* fai = new AccessSem(CreateSemaphore(0,0,1,0), _root);
     _root = fai;
     wait(fai->sem);
 }
@@ -49,10 +49,13 @@ void filemt::release_file_access(AccessSem*& _root)
         old = temp;
         temp = temp->next;
     }
-    signal(temp->sem);
     if (old)
     {
         old->next = 0;
+    }
+    else
+    {
+        _root = 0;
     }
     delete temp;
 }

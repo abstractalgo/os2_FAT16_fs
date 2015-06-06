@@ -40,4 +40,6 @@ public:
 	friend class FS;
 };
 
+void writefopens();
+
 #endif

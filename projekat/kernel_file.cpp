@@ -56,7 +56,8 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
     delete[] w_buffer;
 
     // uvecaj
-    entry.size += cnt;
+    entry.size += (caret+cnt-entry.size);
+    caret += cnt;
     return 1;
 }
 
@@ -165,7 +166,8 @@ KernelFile::~KernelFile()
 
     // otpustanje MT
     filemt::release_file_access(threadtable);
-    filemt::unregister_fopen(d.filetable, this);
+    if (!threadtable)
+        filemt::unregister_fopen(d.filetable, this);
 }
 
 // private

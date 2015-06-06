@@ -203,6 +203,7 @@ File* KernelFS::open(char* fname, char mode)
         {
             // ranije otvoren fajl, stavi se na cekanje
             __access = true;
+            filemt::request_file_access(temp->file->threadtable);
             break;
         }
         delete[] name2;
@@ -254,11 +255,8 @@ File* KernelFS::open(char* fname, char mode)
     // path
     parse(f->myImpl->ppath, fname);
 
-    if (__access)
-    {
+    if (!__access)
         filemt::register_fopen(d.filetable, f->myImpl);
-        filemt::request_file_access(temp->file->threadtable);
-    }
 
     return f;
 }
@@ -296,4 +294,32 @@ char KernelFS::deleteFile(char* fname)
 
     return deleteEntry(d, fname);
     return 1;
+}
+
+void writefopens()
+{
+    putchar('\n');
+    for (int i = 0; i < 26; i++)
+    {
+        if (!FS::myImpl->disks[i].used)
+            continue;
+        Disk& d = *FS::myImpl->disks[i].disk;
+        printf("%c (", 'A' + i);
+        OpenedFilesTable t = d.filetable;
+        while (t)
+        {
+            Entry& _e = t->file->entry;
+            printf(" %.8s%c%.3s [", _e.name, _e.attributes == 0x01 ? '.' : '\0', _e.attributes == 0x01 ? _e.ext : "");
+            filemt::AccessSem* sem = t->file->threadtable;
+            int c = 0;
+            while (sem)
+            {
+                c++;
+                sem = sem->next;
+            }
+            printf("%d] ", c);
+            t = t->next;
+        }
+        printf(")\n");
+    }
 }

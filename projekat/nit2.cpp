@@ -25,6 +25,8 @@ DWORD WINAPI nit2run(){
     wait(mutex); cout << "Nit2: wait 3" << endl; signal(mutex);
     wait(sem32);//ceka nit 3
 
+    BLBR("n2 - 1");
+
     //2.blok
     {
         File *src, *dst;
@@ -50,6 +52,8 @@ DWORD WINAPI nit2run(){
     }
     wait(mutex); cout << "Nit2: wait 1" << endl; signal(mutex);
     wait(sem12);//ceka nit1
+
+    BLBR("2");
 
     //3.blok
     {

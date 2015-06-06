@@ -18,7 +18,7 @@ public:
     BytesCnt getFileSize();                 // uradjeno
     char truncate();                        //
     ~KernelFile();                          // uradjeno (to test)
-private:
+//private:
     uint16_t num;
     Entry entry;
     unsigned long caret;

@@ -32,6 +32,7 @@ namespace filemt
         {}
         ~AccessSem()
         {
+            signal(sem);
             CloseHandle(sem);
         }
     };
