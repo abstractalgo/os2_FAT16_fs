@@ -32,9 +32,6 @@ DWORD WINAPI nit1run(){
     wait(mutex); cout << "Nit1: wait 3" << endl; signal(mutex);
     wait(sem31);//ceka nit 3
 
-    BLBR("n1 - 1");
-    writefopens();
-
     //2.blok
     {
         File *src, *dst;
@@ -69,8 +66,6 @@ DWORD WINAPI nit1run(){
     wait(mutex); cout << "Nit1: signal 3" << endl; signal(mutex);
     signal(sem13);//9.signal
 
-    BLBR("2");
-
     //3.blok
     {
         char *zeroBuff = new char[4000];
@@ -83,12 +78,12 @@ DWORD WINAPI nit1run(){
             wait(mutex); cout << "Nit1: 'fajl2.dat' " << (i + 1) << ". put popunjen nulama" << endl; signal(mutex);
         }
         delete[] zeroBuff;
-        writefopens();
+        //writefopens();
         delete f;
         wait(mutex); cout << "Nit1: Zatvoren fajl 'fajl2.dat'" << endl; signal(mutex);
         signal(sem13);
     }
-    writefopens();
+    //writefopens();
     wait(mutex); cout << "Nit1: wait 2" << endl; signal(mutex);
     wait(sem21);//ceka nit 2
 

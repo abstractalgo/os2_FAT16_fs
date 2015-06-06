@@ -38,9 +38,13 @@ struct Disk
 
     // opened files
     filemt::OpenedFile* filetable;
+    Semaphore un_mountS;
+    bool un_mountB;
 
     Disk(Partition* _p)
         : cache(CACHE_SIZE)
+        , un_mountS(CreateSemaphore(0,0,1,0))
+        , un_mountB(false)
     {
         char w_buffer[2048];
         ClusterNo* buffer = (ClusterNo*)w_buffer;

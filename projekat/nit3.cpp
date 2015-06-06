@@ -6,12 +6,14 @@ DWORD WINAPI nit3run(){
         char filepath1[] = "1:\\fajl1.dat";
         filepath1[0] = p1;
         File *f1 = FS::open(filepath1, 'r');
+        writefopens();
         wait(mutex); cout << "Nit3: Otvoren fajl fajl1.dat" << endl;
         cout << "Nit3: signal 2" << endl; signal(mutex);
         signal(sem32);//6.signal
         char filepath2[] = "1:\\fajl3.dat";
         filepath2[0] = p1;
         File *f2 = FS::open(filepath2, 'w');
+        writefopens();
         wait(mutex); cout << "Nit3: Kreiran fajl fajl3.dat" << endl; signal(mutex);
         wait(mutex); cout << "Nit3: signal 1" << endl; signal(mutex);
         signal(sem31);//7.signal

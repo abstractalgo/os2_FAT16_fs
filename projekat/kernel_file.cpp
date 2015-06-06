@@ -44,7 +44,7 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
     while (left > 0)
     {
         _start = (_start + _cnt) % 2048;
-        _cnt = (left + _start > 2048) ? (left-(left + _start)%2048) : (left - caret);
+        _cnt = (left + _start > 2048) ? (left-(left + _start)%2048) : (left);
 
         readCluster(d, cid, w_buffer);
         memcpy(buffer + (cnt - left), w_buffer + _start, _cnt);
@@ -92,12 +92,14 @@ BytesCnt KernelFile::read(BytesCnt cnt, char* buffer)
     }
     delete[] w_buffer;
 
+    caret += read;
+
     return read;
 }
 
 char KernelFile::seek(BytesCnt cnt)
 {
-    if (entry.size < cnt)
+    if (entry.size <= cnt)
         return 0;
 
     caret = cnt;
@@ -168,6 +170,9 @@ KernelFile::~KernelFile()
     filemt::release_file_access(threadtable);
     if (!threadtable)
         filemt::unregister_fopen(d.filetable, this);
+
+    if (!d.filetable)
+        signal(d.un_mountS);
 }
 
 // private

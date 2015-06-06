@@ -37,7 +37,14 @@ char KernelFS::unmount(char part)
     int idx = part-65;
     if (idx<0 || idx>25 || false == disks[idx].used)
         return 0;
-    // TODO: blokiranje niti dok se ne zatvore svi fajlovi                      
+
+    Disk& _d = *(disks[idx].disk);
+    if (_d.filetable)
+    {
+        _d.un_mountB = true;
+        wait(_d.un_mountS);
+    }
+
     disks[idx].used = false;
     delete disks[idx].disk;
     disks[idx].disk = 0;
@@ -53,10 +60,14 @@ char KernelFS::format(char part)
     if (idx<0 || idx>25 || false==disks[idx].used)
 	    return 0;
 
-    // TODO: blokiranje niti dok se ne zatvore svi fajlovi
-
     Partition* p = disks[idx].disk->partition;
     Disk& _d = *(disks[idx].disk);
+
+    if (_d.filetable)
+    {
+        _d.un_mountB = true;
+        wait(_d.un_mountS);
+    }
 
     // formatiranje particije na disku
     char w_buffer[2048];
@@ -190,6 +201,9 @@ File* KernelFS::open(char* fname, char mode)
         return 0;
 
     Disk& d = *disks[idx].disk;
+
+    if (d.un_mountB)
+        return 0;
 
     // proverava da li je vec otvaran fajl
     bool __access = false;

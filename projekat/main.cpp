@@ -33,14 +33,20 @@ int main(int argc, char** argv)
     FS::createDir("A:\\AnaPetrv");
     FS::deleteDir("A:\\milica\\bmit\\huehue");
     TREEDIR(disk1);
+
     File* f = FS::open("A:\\dragan.txt", 'w');
     char ble[4095] = "dragan je kralj";
     f->write(4095, ble);
+    /*delete f;
+
+    f = FS::open("A:\\dragan.txt", 'w');*/
     char* txt = new char[16];
+    f->seek(0);
     f->read(16, txt);
     printf("TXT: %.10s\n", txt);
     delete[] txt;
     delete f;
+
     TREEDIRI(disk1);
     printf("Da li postoji putanja A:\\dada? %s.\n", FS::doesExist("A:\\dada") ? "Da" : "Ne");
     printf("Da li postoji putanja A:\\grim\\vfx? %s.\n", FS::doesExist("A:\\grim\\vfx") ? "Da" : "Ne");
