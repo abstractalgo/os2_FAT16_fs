@@ -125,9 +125,6 @@ char KernelFile::truncate()
     return 0;
 }
 
-/*
--------------- TODO -------------- TODO --------------
-*/
 KernelFile::~KernelFile()
 {
     // upis entry-ja nazad
@@ -166,6 +163,7 @@ KernelFile::~KernelFile()
 
     // otpustanje MT
     filemt::release_file_access(threadtable);
+    filemt::unregister_fopen(d.filetable, this);
 }
 
 // private

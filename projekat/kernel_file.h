@@ -17,7 +17,7 @@ public:
     char eof();                             // uradjeno
     BytesCnt getFileSize();                 // uradjeno
     char truncate();                        //
-    ~KernelFile();                          //
+    ~KernelFile();                          // uradjeno (to test)
 private:
     uint16_t num;
     Entry entry;
