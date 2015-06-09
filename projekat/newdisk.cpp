@@ -398,8 +398,8 @@ Disk::~Disk()
 
     // upis meta podataka
     buffer[0] = meta.freeNode;          // free node
-    buffer[1] = meta.fatSize; // FAT size
-    buffer[2] = meta.rootDir;          // root dir
+    buffer[1] = meta.fatSize;           // FAT size
+    buffer[2] = meta.rootDir;           // root dir
     buffer[3] = meta.rootSize;          // root size
     partition->writeCluster(0, w_buffer);
 
@@ -408,7 +408,7 @@ Disk::~Disk()
     ClusterNo left = meta.fatSize;
     for (uint16_t i = 0; i < ccnt; i++)
     {
-        ClusterNo cpycnt = left > 512 ? 512 : left;
+        ClusterNo cpycnt = ((left > 512) ? 512 : left);
         memcpy(buffer, FAT, cpycnt*sizeof(ClusterNo));
         partition->writeCluster(1 + i, w_buffer);
         left -= cpycnt;

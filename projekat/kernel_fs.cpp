@@ -78,37 +78,45 @@ char KernelFS::format(char part)
     ClusterNo dataClsCnt = ((totalClsCnt - 1) * 512) / 513;
     ClusterNo FATClsCnt = totalClsCnt - 1 - dataClsCnt;
 
-    //printf("************\nTotal: %d\nData: %d\nFAT: %d\n************\n", totalClsCnt, dataClsCnt, FATClsCnt);
+    _d.meta.freeNode    = 1;
+    _d.meta.fatSize     = dataClsCnt;
+    _d.meta.rootDir     = 0;
+    _d.meta.rootSize    = 0;
 
-    // upis meta podataka
-    buffer[0] = 1;          // free node
-    buffer[1] = dataClsCnt; // FAT size
-    buffer[2] = 0;          // root dir
-    buffer[3] = 0;          // root size
-    _d.partition->writeCluster(0, w_buffer);
+    _d.FAT = new ClusterNo[_d.meta.fatSize];
+    for (ClusterNo i = 0; i < _d.meta.fatSize; i++)
+        _d.FAT[i] = i+1;
 
-    // formatiranje FAT tabele
-    ClusterNo left = dataClsCnt;
-    for (ClusterNo cid = 0; cid < FATClsCnt; cid++)
-    {
-        for (ClusterNo i = 0; i < 512; i++)
-        {
-            ClusterNo idx = (cid * 512) + i;
-            buffer[i] = idx + 1;
-            if (0 == idx)
-                buffer[0] = 0;
-            if (idx == dataClsCnt)
-            {
-                buffer[i] = 0;
-                break;
-            }
-        }
-        _d.partition->writeCluster(1 + cid, w_buffer);
-    }
+    _d.FAT[0] = 0;
+    _d.FAT[_d.meta.fatSize-1] = 0;
+
+    //// upis meta podataka
+    //buffer[0] = 1;          // free node
+    //buffer[1] = dataClsCnt; // FAT size
+    //buffer[2] = 0;          // root dir
+    //buffer[3] = 0;          // root size
+    //_d.partition->writeCluster(0, w_buffer);
+
+    //// formatiranje FAT tabele
+    //ClusterNo left = dataClsCnt, limit, cid = 0;
+    //while (left>0)
+    //{
+    //    limit = left > 512 ? 512 : left;
+    //    for (ClusterNo i = 0; i < limit; i++)
+    //    {
+    //        ClusterNo idx = (cid * 512) + i;
+    //        buffer[i] = idx + 1;
+    //        if (0 == idx)
+    //            buffer[0] = 0;
+    //    }
+    //    _d.partition->writeCluster(1 + cid, w_buffer);
+    //    left -= limit;
+    //    cid++;
+    //}
 
     // re-ucitavanje podataka u memoriju
-    delete disks[idx].disk;
-    disks[idx].disk = new Disk(p);
+    /*delete disks[idx].disk;
+    disks[idx].disk = new Disk(p);*/
 
     return 1;
 }

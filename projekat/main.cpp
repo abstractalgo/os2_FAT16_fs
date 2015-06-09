@@ -20,6 +20,7 @@ int main(int argc, char** argv)
     //MARK("Mount 2");
     //char disk2 = FS::mount(p2);
     //FS::format(disk2);
+    TREEDIR(disk1);
 
     FS::createDir("A:\\grim");
     FS::createDir("A:\\grim\\vfx");
@@ -37,9 +38,12 @@ int main(int argc, char** argv)
     File* f = FS::open("A:\\dragan.txt", 'w');
     char ble[4095] = "dragan je kralj";
     f->write(4095, ble);
-    /*delete f;
+    delete f;
 
-    f = FS::open("A:\\dragan.txt", 'w');*/
+    /*FS::unmount('A');
+    disk1 = FS::mount(p1);*/
+
+    f = FS::open("A:\\dragan.txt", 'r');
     char* txt = new char[16];
     f->seek(0);
     f->read(16, txt);
@@ -58,6 +62,23 @@ int main(int argc, char** argv)
     delete p1;
     //delete p2;
 
+    /*PathParser p;
+    const char* path = "A:\\dragan\\okanovic\\je\\kralj.exe";
+    parse(p, path);
+    char* cmb;
+    cmb = combine(p, 0);
+    printf("'%s'\n", cmb);
+    delete[] cmb;*/
+
+    /*Partition* p1 = new Partition("p1.ini");
+    char disk1 = FS::mount(p1);
+    FS::format(disk1);
+    TREEDIR(disk1);
+    FS::unmount(disk1);
+    disk1 = FS::mount(p1);
+    TREEDIR(disk1);
+    FS::unmount(disk1);
+    delete p1;*/
 
 	getchar();
 	return 0;

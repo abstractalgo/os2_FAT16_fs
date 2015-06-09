@@ -104,7 +104,6 @@ DWORD WINAPI nit2run(){
     signal(sem21);//12. signal
 
     wait(mutex); cout << "Nit2: Zavrsena!" << endl; signal(mutex);
-    writefopens();
     signal(semMain);
     return 0;
 }

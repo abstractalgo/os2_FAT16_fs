@@ -10,26 +10,24 @@ bool parse(PathParser& _p, const char* _path, bool _zt)
     uint16_t i = 3;
 
     // parse
-    while (i<l)
-    {
+    while (i<l) {
         uint16_t old_i = i;
         // get to the end of the string or the separator
-        while (i < l && _path[i] != '\\' && _path[i]!='\0') i++;
+        while (i < l && _path[i] != '\\' && _path[i]!='\0')
+            i++;
 
         // allocate memory and copy data
         _p.parts = (char**)realloc(_p.parts, (_p.partsNum + 1) * SOCP);
         _p.parts[_p.partsNum] = (char*)malloc(SOC*(i - old_i + (_zt ? 1 : 0)));
         memcpy(_p.parts[_p.partsNum], _path + old_i, SOC*(i - old_i));
-        if (_zt) _p.parts[_p.partsNum][i - old_i] = '\0';
+        if (_zt)
+            _p.parts[_p.partsNum][i - old_i] = '\0';
 
         _p.partsNum++;
-        i++;
-    }
+        i++; }
 
     if (!isValid(_p))
-    {
         return false;
-    }
 
     return true;
 }
@@ -76,16 +74,19 @@ void write(PathParser& _p)
 
 char* combine(PathParser& _p, uint8_t _n)
 {
+    if (_n>_p.partsNum)
+        return 0;
+
     char* res = new char[3];
     res[0] = _p.disk;
     res[1] = ':';
     res[2] = '\\';
     uint16_t size = 3;
-    for (uint8_t i = 0; i < _n; i++)
+    for (uint16_t i = 0; i < _n; i++)
     {
         uint16_t part_size = strlen(_p.parts[i]);
         size += part_size+1;
-        res = (char*)realloc(res, (size+1)*SOC);
+        res = (char*)realloc(res, size*SOC);
         memcpy(res+size-part_size-1, _p.parts[i], SOC*part_size);
         res[size-1] = '\\';
     }

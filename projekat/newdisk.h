@@ -56,7 +56,7 @@ struct Disk
         meta.rootDir    = buffer[2];
         meta.rootSize   = buffer[3];
 
-        // storing entire FAT table
+        // caching entire FAT table
         FAT = new ClusterNo[meta.fatSize];
         uint16_t FATClsCnt = (meta.fatSize + 511) / 512;
         uint16_t left = meta.fatSize;
