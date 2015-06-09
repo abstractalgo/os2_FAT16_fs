@@ -1,10 +1,11 @@
 #pragma once
 
 #include <stdio.h>
-#include <windows.h>
 #include "fs.h"
 #include "newdisk.h"
-#include "filemt.h"
+// mt
+#include <queue>
+#include "semaphore.h"
 
 class KernelFile
 {
@@ -19,13 +20,15 @@ public:
     char truncate();                        //
     ~KernelFile();                          // uradjeno (to test)
 //private:
-    uint16_t num;
-    Entry entry;
-    unsigned long caret;
-    char mod;
-    filemt::AccessSem* threadtable;
-    PathParser ppath;
-    Disk& d;
+
+    Entry           entry;
+    unsigned long   caret;
+    char            mod;
+    PathParser      ppath;
+    Disk&           d;
+
+    // mt
+    std::queue<Semaphore> waitQueue;
 
     friend class FS;
     friend class KernelFS;

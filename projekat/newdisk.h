@@ -10,6 +10,9 @@
 #include "fs.h"
 #include "pathparser.h"
 #include "filemt.h"
+// mt
+#include <vector>
+#include "semaphore.h"
 
 #define SOCL sizeof(ClusterNo)
 
@@ -36,8 +39,8 @@ struct Disk
     // cache
     CacheLRU cache;
 
-    // opened files
-    filemt::OpenedFile* filetable;
+    // mt
+    std::vector<KernelFile*> filetable;
     Semaphore un_mountS;
     bool un_mountB;
 
@@ -72,9 +75,6 @@ struct Disk
 
         // assign partition
         partition = _p;
-
-        // opened files
-        filetable = 0;
     }
 
     ~Disk();

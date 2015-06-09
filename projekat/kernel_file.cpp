@@ -25,7 +25,7 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
             cid = nc;
         }
     }
-    //FATty(ppath.disk);
+
     // dodji do odgovarajuceg klastera gde je caret
     cid = entry.firstCluster;
     {
@@ -132,6 +132,18 @@ char KernelFile::truncate()
 
 KernelFile::~KernelFile()
 {
+    // ako jos neko ceka na fajl, onda samo prosledi objekat
+    bool awaits = false;
+    if (waitQueue.size() > 0)
+    {
+        signal(waitQueue.front());
+        waitQueue.pop();
+        return;
+    }
+
+    // izbrisi ga iz liste otvorenih fajlova
+    d.filetable.erase(std::remove(d.filetable.begin(), d.filetable.end(), this), d.filetable.end());
+
     // upis entry-ja nazad
     Entry dir;
     getEntry(d, dir, combine(ppath, ppath.partsNum - 1));
@@ -167,12 +179,12 @@ KernelFile::~KernelFile()
     writeCluster(d, cid, w_buffer);
 
     // otpustanje MT
-    filemt::release_file_access(threadtable);
+    /*filemt::release_file_access(threadtable);
     if (!threadtable)
         filemt::unregister_fopen(d.filetable, this);
 
     if (!d.filetable)
-        signal(d.un_mountS);
+        signal(d.un_mountS);*/
 }
 
 // private
