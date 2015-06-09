@@ -13,9 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="test">
+    <Filter Include="test_javni">
       <UniqueIdentifier>{9833a95a-7034-41d9-8c5b-913dffad6925}</UniqueIdentifier>
       <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="test_moj">
+      <UniqueIdentifier>{22c883fe-27dd-45a9-b308-4f151a9c066c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -50,16 +53,25 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="nit1.cpp">
-      <Filter>test</Filter>
+      <Filter>test_javni</Filter>
     </ClCompile>
     <ClCompile Include="nit2.cpp">
-      <Filter>test</Filter>
+      <Filter>test_javni</Filter>
     </ClCompile>
     <ClCompile Include="test.cpp">
-      <Filter>test</Filter>
+      <Filter>test_javni</Filter>
     </ClCompile>
     <ClCompile Include="nit3.cpp">
-      <Filter>test</Filter>
+      <Filter>test_javni</Filter>
+    </ClCompile>
+    <ClCompile Include="t_one.cpp">
+      <Filter>test_moj</Filter>
+    </ClCompile>
+    <ClCompile Include="t_two.cpp">
+      <Filter>test_moj</Filter>
+    </ClCompile>
+    <ClCompile Include="moj_test.cpp">
+      <Filter>test_moj</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -94,13 +106,16 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="testprimer.h">
-      <Filter>test</Filter>
+      <Filter>test_javni</Filter>
     </ClInclude>
     <ClInclude Include="semaphore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="settings.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="moj_test.h">
+      <Filter>test_moj</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

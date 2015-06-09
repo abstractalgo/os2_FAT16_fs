@@ -30,7 +30,6 @@ DWORD WINAPI nit2run(){
         File *src, *dst;
         char filepath1[] = "1:\\fajl1.dat";
         filepath1[0] = p1;
-        printf("--\n");
         src = FS::open(filepath1, 'r');
         src->seek(src->getFileSize() / 2);//pozicionira se na pola fajla
         wait(mutex); cout << "Nit2: Otvoren fajl 'fajl1.dat' i pozicionirani smo na polovini" << endl; signal(mutex);
@@ -103,6 +102,7 @@ DWORD WINAPI nit2run(){
     wait(mutex); cout << "Nit2: signal 1" << endl; signal(mutex);
     signal(sem21);//12. signal
 
+    //writefopens();
     wait(mutex); cout << "Nit2: Zavrsena!" << endl; signal(mutex);
     signal(semMain);
     return 0;

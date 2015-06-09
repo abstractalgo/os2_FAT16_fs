@@ -29,7 +29,7 @@ ostream& operator<<(ostream &os, const Entry &E){
     return os << name << " [" << E.size << ']';
 }
 
-#ifdef testapp
+#ifdef javni_test
 
 int main(){
     clock_t startTime, endTime;

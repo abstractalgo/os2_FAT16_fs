@@ -1,6 +1,6 @@
 ﻿#include "settings.h"
 
-#ifndef testapp
+#ifdef moj_main
 
 #include <stdio.h>
 #include "fs.h"
@@ -63,10 +63,10 @@ int main(int argc, char** argv)
     //delete p2;
 
     /*PathParser p;
-    const char* path = "A:\\dragan\\okanovic\\je\\kralj.exe";
+    const char* path = "A:\\fajl4.dat";;
     parse(p, path);
     char* cmb;
-    cmb = combine(p, 0);
+    cmb = combine(p, 1);
     printf("'%s'\n", cmb);
     delete[] cmb;*/
 

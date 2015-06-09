@@ -72,12 +72,15 @@
     <ClCompile Include="kernel_fs.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="filemt.cpp" />
+    <ClCompile Include="moj_test.cpp" />
     <ClCompile Include="newdisk.cpp" />
     <ClCompile Include="nit1.cpp" />
     <ClCompile Include="nit2.cpp" />
     <ClCompile Include="nit3.cpp" />
     <ClCompile Include="pathparser.cpp" />
     <ClCompile Include="test.cpp" />
+    <ClCompile Include="t_one.cpp" />
+    <ClCompile Include="t_two.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="allocator.h" />
@@ -87,6 +90,7 @@
     <ClInclude Include="kernel_file.h" />
     <ClInclude Include="kernel_fs.h" />
     <ClInclude Include="filemt.h" />
+    <ClInclude Include="moj_test.h" />
     <ClInclude Include="newdisk.h" />
     <ClInclude Include="part.h" />
     <ClInclude Include="pathparser.h" />

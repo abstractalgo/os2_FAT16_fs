@@ -125,7 +125,7 @@ DWORD WINAPI nit1run(){
         FS::unmount(p1);
         wait(mutex); cout << "Nit1: Demontirana particija p1" << endl; signal(mutex);
     }
-
+    //writefopens();
     wait(mutex); cout << "Nit1: Zavrsena!" << endl; signal(mutex);
     signal(semMain);
     return 0;

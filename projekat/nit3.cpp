@@ -1,6 +1,6 @@
 #include"testprimer.h"
 
-#define cout cout<<__LINE__
+#define cout cout<<__LINE__<<": "
 
 DWORD WINAPI nit3run(){
     wait(sem23);	//ceka nit2

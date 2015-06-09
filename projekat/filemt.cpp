@@ -10,23 +10,17 @@ void filemt::unregister_fopen(OpenedFile*& _root, KernelFile* _f)
 {
     OpenedFile* temp = _root;
     OpenedFile* old = 0;
-    while (temp)
-    {
-        if (temp->file == _f)
-        {
+
+    while (temp) {
+        if (temp->file == _f) {
             if (old)
-            {
                 old->next = temp->next;
-            }
             else
-            {
                 _root = temp->next;
-            }
-            break;
-        }
+            break; }
+
         old = temp;
-        temp = temp->next;
-    }
+        temp = temp->next; }
 }
 
 void filemt::request_file_access(AccessSem*& _root){
