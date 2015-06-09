@@ -178,13 +178,9 @@ KernelFile::~KernelFile()
     e_buffer[idx] = entry;
     writeCluster(d, cid, w_buffer);
 
-    // otpustanje MT
-    /*filemt::release_file_access(threadtable);
-    if (!threadtable)
-        filemt::unregister_fopen(d.filetable, this);
-
-    if (!d.filetable)
-        signal(d.un_mountS);*/
+    // otpustanje unmount/format
+    if (d.un_mountB && d.filetable.size() == 0)
+        signal(d.un_mountS);
 }
 
 // private

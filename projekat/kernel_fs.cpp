@@ -39,11 +39,13 @@ char KernelFS::unmount(char part)
         return 0;
 
     Disk& _d = *(disks[idx].disk);
-    /*if (_d.filetable)
+
+    if (_d.filetable.size() > 0 && !_d.un_mountB)
     {
         _d.un_mountB = true;
+        _d.un_mountS = CreateSemaphore(0, 0, 1, 0);
         wait(_d.un_mountS);
-    }*/
+    }
 
     disks[idx].used = false;
     delete disks[idx].disk;
@@ -63,11 +65,12 @@ char KernelFS::format(char part)
     Partition* p = disks[idx].disk->partition;
     Disk& _d = *(disks[idx].disk);
 
-    /*if (_d.filetable)
+    if (_d.filetable.size() > 0 && !_d.un_mountB)
     {
         _d.un_mountB = true;
+        _d.un_mountS = CreateSemaphore(0, 0, 1, 0);
         wait(_d.un_mountS);
-    }*/
+    }
 
     // formatiranje particije na disku
     char w_buffer[2048];
@@ -330,30 +333,21 @@ char KernelFS::deleteFile(char* fname)
     return deleteEntry(d, fname);
 }
 
-//void writefopens()
-//{
-//    putchar('\n');
-//    for (int i = 0; i < 26; i++)
-//    {
-//        if (!FS::myImpl->disks[i].used)
-//            continue;
-//        Disk& d = *FS::myImpl->disks[i].disk;
-//        printf("%c (", 'A' + i);
-//        OpenedFilesTable t = d.filetable;
-//        while (t)
-//        {
-//            Entry& _e = t->file->entry;
-//            printf(" %.8s%c%.3s [", _e.name, _e.attributes == 0x01 ? '.' : '\0', _e.attributes == 0x01 ? _e.ext : "");
-//            filemt::AccessSem* sem = t->file->threadtable;
-//            int c = 0;
-//            while (sem)
-//            {
-//                c++;
-//                sem = sem->next;
-//            }
-//            printf("%d] ", c);
-//            t = t->next;
-//        }
-//        printf(")\n");
-//    }
-//}
+void writefopens()
+{
+    putchar('\n');
+    for (int i = 0; i < 26; i++)
+    {
+        if (!FS::myImpl->disks[i].used)
+            continue;
+        Disk& d = *FS::myImpl->disks[i].disk;
+        printf("%c (", 'A' + i);
+        uint8_t fcnt = d.filetable.size();
+        for (uint8_t i = 0; i < fcnt; i++)
+        {
+            Entry& _e = d.filetable[i]->entry;
+            printf(" %.8s%c%.3s [%d] ", _e.name, _e.attributes == 0x01 ? '.' : '\0', _e.attributes == 0x01 ? _e.ext : "", d.filetable[i]->waitQueue.size());
+        }
+        printf(")\n");
+    }
+}
