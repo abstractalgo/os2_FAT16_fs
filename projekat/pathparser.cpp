@@ -81,10 +81,10 @@ char* combine(PathParser& _p, uint8_t _n)
     res[0] = _p.disk;
     res[1] = ':';
     res[2] = '\\';
-    uint16_t size = 3;
+    int size = 3;
     for (uint16_t i = 0; i < _n; i++)
     {
-        uint16_t part_size = strlen(_p.parts[i]);
+        int part_size = strlen(_p.parts[i]);
         size += part_size+1;
         res = (char*)realloc(res, size*SOC);
         memcpy(res+size-part_size-1, _p.parts[i], SOC*part_size);

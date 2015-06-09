@@ -421,5 +421,7 @@ Disk::~Disk()
         partition->writeCluster(1 + ccnt + i, w_buffer);
     }
 
+    CloseHandle(un_mountS);
+
     delete[] FAT;
 }

@@ -35,6 +35,7 @@ DWORD WINAPI nit2run(){
         wait(mutex); cout << "Nit2: Otvoren fajl 'fajl1.dat' i pozicionirani smo na polovini" << endl; signal(mutex);
         char filepath2[] = "1:\\fajl5.dat";
         filepath2[0] = p1;
+        writefopens();
         dst = FS::open(filepath2, 'w');
         wait(mutex); cout << "Nit2: Otvoren fajl 'fajl5.dat'" << endl; signal(mutex);
         char c;

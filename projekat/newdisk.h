@@ -13,6 +13,8 @@
 // mt
 #include <vector>
 #include "semaphore.h"
+#include <queue>
+#include <map>
 
 #define SOCL sizeof(ClusterNo)
 
@@ -40,7 +42,8 @@ struct Disk
     CacheLRU cache;
 
     // mt
-    std::vector<KernelFile*> filetable;
+    //std::vector<KernelFile*> filetable;
+    std::map<KernelFile*, std::queue<Semaphore>*> filetable;
     Semaphore un_mountS;
     bool un_mountB;
 

@@ -93,33 +93,7 @@ char KernelFS::format(char part)
     _d.FAT[0] = 0;
     _d.FAT[_d.meta.fatSize-1] = 0;
 
-    //// upis meta podataka
-    //buffer[0] = 1;          // free node
-    //buffer[1] = dataClsCnt; // FAT size
-    //buffer[2] = 0;          // root dir
-    //buffer[3] = 0;          // root size
-    //_d.partition->writeCluster(0, w_buffer);
-
-    //// formatiranje FAT tabele
-    //ClusterNo left = dataClsCnt, limit, cid = 0;
-    //while (left>0)
-    //{
-    //    limit = left > 512 ? 512 : left;
-    //    for (ClusterNo i = 0; i < limit; i++)
-    //    {
-    //        ClusterNo idx = (cid * 512) + i;
-    //        buffer[i] = idx + 1;
-    //        if (0 == idx)
-    //            buffer[0] = 0;
-    //    }
-    //    _d.partition->writeCluster(1 + cid, w_buffer);
-    //    left -= limit;
-    //    cid++;
-    //}
-
-    // re-ucitavanje podataka u memoriju
-    /*delete disks[idx].disk;
-    disks[idx].disk = new Disk(p);*/
+    _d.un_mountB = false;
 
     return 1;
 }
@@ -208,7 +182,10 @@ otvara fajl ili pravi novi
 File* KernelFS::open(char* fname, char mode)
 {
     PathParser ppath;
-    parse(ppath, fname);
+    
+    if (!parse(ppath, fname))
+        return 0;
+
     int idx = ppath.disk - 65;
     if (idx<0 || idx>25 || false == disks[idx].used)
         return 0;
@@ -225,22 +202,21 @@ File* KernelFS::open(char* fname, char mode)
     char* name1, *name2;
     bool awaits = false;
     name1 = combine(ppath, ppath.partsNum);
-    for (uint8_t i = 0; i < fcnt; i++)
+    for (std::map<KernelFile*, std::queue<Semaphore>*>::iterator it = d.filetable.begin(); it != d.filetable.end(); ++it)
     {
-        name2 = combine(d.filetable[i]->ppath, d.filetable[i]->ppath.partsNum);
+        name2 = combine(it->first->ppath, it->first->ppath.partsNum);
         if (0 == strcmp(name1, name2))
         {
-            // otvoren fajl, ali sad treba da ga pokupi
             if (awaits)
             {
-                f->myImpl = d.filetable[i];
+                f->myImpl = it->first;
                 return f;
             }
             // ranije otvoren fajl, stavi se na cekanje
-            d.filetable[i]->waitQueue.push(CreateSemaphore(0, 0, 1, 0));
-            wait(d.filetable[i]->waitQueue.back());
+            it->second->push(CreateSemaphore(0, 0, 1, 0));
+            wait(it->second->back());
             awaits = true;
-            i = 0;
+            it = d.filetable.begin();
         }
         delete[] name2;
     }
@@ -289,7 +265,7 @@ File* KernelFS::open(char* fname, char mode)
     // path
     parse(f->myImpl->ppath, fname);
 
-    d.filetable.push_back(f->myImpl);
+    d.filetable.insert({ f->myImpl, new std::queue<Semaphore> });
 
     return f;
 }
@@ -314,9 +290,9 @@ char KernelFS::deleteFile(char* fname)
     name1 = combine(ppath, ppath.partsNum);
 
     bool found = false;
-    for (uint8_t i = 0; i < fcnt; i++)
+    for (std::map<KernelFile*, std::queue<Semaphore>*>::iterator it = d.filetable.begin(); it != d.filetable.end(); ++it)
     {
-        name2 = combine(d.filetable[i]->ppath, d.filetable[i]->ppath.partsNum);
+        name2 = combine(it->first->ppath, it->first->ppath.partsNum);
         if (0 == strcmp(name1, name2))
         {
             // otvoren fajl
@@ -343,10 +319,10 @@ void writefopens()
         Disk& d = *FS::myImpl->disks[i].disk;
         printf("%c (", 'A' + i);
         uint8_t fcnt = d.filetable.size();
-        for (uint8_t i = 0; i < fcnt; i++)
+        for (std::map<KernelFile*, std::queue<Semaphore>*>::iterator it = d.filetable.begin(); it != d.filetable.end(); ++it)
         {
-            Entry& _e = d.filetable[i]->entry;
-            printf(" %.8s%c%.3s [%d] ", _e.name, _e.attributes == 0x01 ? '.' : '\0', _e.attributes == 0x01 ? _e.ext : "", d.filetable[i]->waitQueue.size());
+            Entry& _e =it->first->entry;
+            printf(" %.8s%c%.3s [%d] ", _e.name, _e.attributes == 0x01 ? '.' : '\0', _e.attributes == 0x01 ? _e.ext : "",it->second->size());
         }
         printf(")\n");
     }

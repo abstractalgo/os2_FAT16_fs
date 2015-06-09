@@ -17,7 +17,7 @@
 // 1 - proba
 // 2 - javni test
 // 3 - moj test
-#define APPLICATION_SETUP 2
+#define APPLICATION_SETUP 1
 
 #if (APPLICATION_SETUP == 1)
 #   define moj_main

@@ -27,9 +27,6 @@ public:
     PathParser      ppath;
     Disk&           d;
 
-    // mt
-    std::queue<Semaphore> waitQueue;
-
     friend class FS;
     friend class KernelFS;
     KernelFile(Disk& _d);

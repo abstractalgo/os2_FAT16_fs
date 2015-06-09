@@ -132,17 +132,18 @@ char KernelFile::truncate()
 
 KernelFile::~KernelFile()
 {
-    // ako jos neko ceka na fajl, onda samo prosledi objekat
-    bool awaits = false;
-    if (waitQueue.size() > 0)
+    // neko ceka na fajl
+    Semaphore s = 0;
+    for (std::map<KernelFile*, std::queue<Semaphore>*>::iterator it = d.filetable.begin(); it != d.filetable.end(); ++it)
     {
-        signal(waitQueue.front());
-        waitQueue.pop();
-        return;
+        if (this == it->first)
+        {
+            // neko ceka na fajl
+            if (it->second->size() > 0)
+            s = it->second->front();
+            it->second->pop();
+        }
     }
-
-    // izbrisi ga iz liste otvorenih fajlova
-    d.filetable.erase(std::remove(d.filetable.begin(), d.filetable.end(), this), d.filetable.end());
 
     // upis entry-ja nazad
     Entry dir;
@@ -178,9 +179,19 @@ KernelFile::~KernelFile()
     e_buffer[idx] = entry;
     writeCluster(d, cid, w_buffer);
 
-    // otpustanje unmount/format
-    if (d.un_mountB && d.filetable.size() == 0)
-        signal(d.un_mountS);
+    // otpustanje MT
+    if (s)
+    {
+        signal(s);
+        CloseHandle(s);
+    }  
+    else
+    {
+        d.filetable.erase(this);
+        if (d.un_mountB && d.filetable.size() == 0)
+            signal(d.un_mountS);
+    }
+        
 }
 
 // private
