@@ -44,7 +44,7 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
     while (left > 0)
     {
         _start = (_start + _cnt) % 2048;
-        _cnt = (left + _start > 2048) ? (left-(left + _start)%2048) : (left);
+        _cnt = (left + _start > 2048) ? (2048-_start) : (left);
 
         readCluster(d, cid, w_buffer);
         memcpy(buffer + (cnt - left), w_buffer + _start, _cnt);
