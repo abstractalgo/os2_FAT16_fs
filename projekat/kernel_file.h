@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Windows.h>
 #include <stdio.h>
 #include "fs.h"
 #include "newdisk.h"
@@ -26,8 +27,9 @@ public:
     char            mod;
     PathParser      ppath;
     Disk&           d;
+	HANDLE          mutex;
 
     friend class FS;
     friend class KernelFS;
-    KernelFile(Disk& _d);
+    KernelFile(Disk& _d, HANDLE mutex);
 };

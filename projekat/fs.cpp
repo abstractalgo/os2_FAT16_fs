@@ -3,7 +3,8 @@
 
 /* ----------------------- FILE SYSTEM ----------------------- */
 
-KernelFS* FS::myImpl = new KernelFS();
+KernelFS pfs;
+KernelFS* FS::myImpl = &pfs;
 
 FS::FS()
 {

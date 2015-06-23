@@ -92,5 +92,6 @@ char* combine(PathParser& _p, uint8_t _n)
     }
     res = (char*)realloc(res, (size+1)*SOC);
     res[size] = '\0';
+	res[size - 1] = '\0';
     return res;
 }
