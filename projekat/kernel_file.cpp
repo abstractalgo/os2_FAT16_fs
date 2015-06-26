@@ -178,10 +178,6 @@ extern char p1;
 
 KernelFile::~KernelFile()
 {
-	if (0 == strcmp(this->ppath.parts[0],"fajl3.dat") && this->ppath.disk == p1)
-	{
-		int dummy = 1;
-	}
     // upis entry-ja nazad
 	WaitForSingleObject(mutex, INFINITE);
 
