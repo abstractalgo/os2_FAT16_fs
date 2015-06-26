@@ -1,7 +1,5 @@
 #include"testprimer.h"
 
-#define cout cout<<__LINE__<<": "
-
 DWORD WINAPI nit3run(){
     wait(sem23);	//ceka nit2
     {
@@ -26,6 +24,7 @@ DWORD WINAPI nit3run(){
         wait(mutex); cout << "Nit3: Zatvoren fajl fajl1.dat" << endl; signal(mutex);
         delete f2;
         wait(mutex); cout << "Nit3: Zatvoren fajl fajl3.dat" << endl; signal(mutex);
+		
     }
     wait(mutex); cout << "Nit3: wait 1" << endl; signal(mutex);
     wait(sem13);//ceka nit 1
@@ -50,7 +49,7 @@ DWORD WINAPI nit3run(){
         filepath[0] = p2;
         File *f = FS::open(filepath, 'r');
         wait(mutex); cout << "Nit3: Otvoren fajl fajl2.dat" << endl; signal(mutex);
-        ofstream fout("izlaz1.dat", ios::out | ios::binary);
+		ofstream fout(OUT_NAME"1"OUT_EXT, ios::out | ios::binary);
         char *buff = new char[f->getFileSize()];
         f->read(f->getFileSize(), buff);
         fout.write(buff, f->getFileSize());

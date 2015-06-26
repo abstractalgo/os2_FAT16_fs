@@ -37,6 +37,7 @@ DWORD WINAPI nit1run(){
         File *src, *dst;
         char filepath1[] = "1:\\fajl3.dat";
         filepath1[0] = p1;
+		//TREEDIRI('A');
         src = FS::open(filepath1, 'r');
         wait(mutex); cout << "Nit1: Otvoren fajl fajl3.dat za citanje!" << endl; signal(mutex);
         char filepath2[] = "2:\\fajl4.dat";
@@ -113,7 +114,7 @@ DWORD WINAPI nit1run(){
         filepath[0] = p1;
         File *f = FS::open(filepath, 'r');
         wait(mutex); cout << "Nit1: Otvoren fajl 'fajl1.dat'" << endl; signal(mutex);
-        ofstream fout("izlaz2.dat", ios::out | ios::binary);
+        ofstream fout(OUT_NAME"2"OUT_EXT, ios::out | ios::binary);
         char *buff = new char[f->getFileSize()];
         f->read(f->getFileSize(), buff);
         fout.write(buff, f->getFileSize());

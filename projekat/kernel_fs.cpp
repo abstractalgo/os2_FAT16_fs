@@ -2,12 +2,12 @@
 
 KernelFS::KernelFS()
 {
-    
+	mutex = CreateMutex(NULL, FALSE, NULL);
 }
 
 KernelFS::~KernelFS()
 {
-    
+	CloseHandle(mutex);
 }
 
 // -----------------------------------------------------------------------------
@@ -17,15 +17,21 @@ montira particiju/disk
 */
 char KernelFS::mount(Partition* partition)
 {
+	WaitForSingleObject(mutex, INFINITE);
+
     for (int i = 0; i < 26; i++)
     {
         if (false == disks[i].used)
         {
             disks[i].used = true;
             disks[i].disk = new Disk(partition);
+
+			ReleaseMutex(mutex);
             return i+65;
         }
     }
+
+	ReleaseMutex(mutex);
     return 0;
 }
 
@@ -34,20 +40,29 @@ demontira particiju/disk
 */
 char KernelFS::unmount(char part)
 {
+	WaitForSingleObject(mutex, INFINITE);
+
     int idx = part-65;
-    if (idx<0 || idx>25 || false == disks[idx].used)
-        return 0;
+	if (idx<0 || idx>25 || false == disks[idx].used)
+	{
+		ReleaseMutex(mutex);
+		return 0;
+	}
 
     Disk& _d = *(disks[idx].disk);
-    if (_d.filetable)
-    {
-        _d.un_mountB = true;
-        wait(_d.un_mountS);
-    }
+
+	if (_d.filetable.size() > 0 || _d.formatRequest)
+	{
+		_d.unmountRequest = true;
+		SignalObjectAndWait(mutex, _d.unmountMutex, INFINITE, FALSE);
+		WaitForSingleObject(mutex, INFINITE);
+	}
 
     disks[idx].used = false;
     delete disks[idx].disk;
     disks[idx].disk = 0;
+
+	ReleaseMutex(mutex);
 	return 1;
 }
 
@@ -56,18 +71,30 @@ formatira particiju/disk
 */
 char KernelFS::format(char part)
 {
+	WaitForSingleObject(mutex, INFINITE);
+
     int idx = part-65;
-    if (idx<0 || idx>25 || false==disks[idx].used)
-	    return 0;
+	if (idx<0 || idx>25 || false == disks[idx].used)
+	{
+		ReleaseMutex(mutex);
+		return 0;
+	}
 
     Partition* p = disks[idx].disk->partition;
     Disk& _d = *(disks[idx].disk);
 
-    if (_d.filetable)
-    {
-        _d.un_mountB = true;
-        wait(_d.un_mountS);
-    }
+	if (_d.unmountRequest || _d.formatRequest)
+	{
+		ReleaseMutex(mutex);
+		return 0;
+	}
+
+	if (_d.filetable.size() > 0)
+	{
+		_d.formatRequest = true;
+		SignalObjectAndWait(mutex, _d.formatMutex, INFINITE, FALSE);
+		WaitForSingleObject(mutex, INFINITE);
+	}
 
     // formatiranje particije na disku
     char w_buffer[2048];
@@ -90,54 +117,39 @@ char KernelFS::format(char part)
     _d.FAT[0] = 0;
     _d.FAT[_d.meta.fatSize-1] = 0;
 
-    //// upis meta podataka
-    //buffer[0] = 1;          // free node
-    //buffer[1] = dataClsCnt; // FAT size
-    //buffer[2] = 0;          // root dir
-    //buffer[3] = 0;          // root size
-    //_d.partition->writeCluster(0, w_buffer);
+	_d.formatRequest = false;
+	if (_d.filetable.size() == 0 && _d.unmountRequest)
+	{
+		ReleaseMutex(_d.unmountMutex);
+	}
 
-    //// formatiranje FAT tabele
-    //ClusterNo left = dataClsCnt, limit, cid = 0;
-    //while (left>0)
-    //{
-    //    limit = left > 512 ? 512 : left;
-    //    for (ClusterNo i = 0; i < limit; i++)
-    //    {
-    //        ClusterNo idx = (cid * 512) + i;
-    //        buffer[i] = idx + 1;
-    //        if (0 == idx)
-    //            buffer[0] = 0;
-    //    }
-    //    _d.partition->writeCluster(1 + cid, w_buffer);
-    //    left -= limit;
-    //    cid++;
-    //}
-
-    // re-ucitavanje podataka u memoriju
-    /*delete disks[idx].disk;
-    disks[idx].disk = new Disk(p);*/
-
+	ReleaseMutex(mutex);
     return 1;
 }
 
 // -----------------------------------------------------------------------------
 
 /*
-proverava posotjanje fajla/foldera sa zadatom putanjom
+proverava postjanje fajla/foldera sa zadatom putanjom
 */
 char KernelFS::doesExist(char* fname)
 {
-    PathParser ppath;
-    parse(ppath, fname);
-    int idx = ppath.disk - 65;
-    if (idx<0 || idx>25 || false == disks[idx].used)
-        return 0;
+	WaitForSingleObject(mutex, INFINITE);
+
+    int idx = fname[0] - 65;
+	if (idx<0 || idx>25 || false == disks[idx].used)
+	{
+		ReleaseMutex(mutex);
+		return 0;
+	}
 
     Disk& d = *disks[idx].disk;
 
     Entry dir;
-    return getEntry(d, dir, fname);
+    bool ret = getEntry(d, dir, fname);
+
+	ReleaseMutex(mutex);
+	return ret;
 }
 
 /*
@@ -145,12 +157,20 @@ pravi folder
 */
 char KernelFS::createDir(char* dirname)
 {
+	WaitForSingleObject(mutex, INFINITE);
+
     int idx = dirname[0] - 65;
-    if (idx<0 || idx>25 || false == disks[idx].used)
-        return 0;
+	if (idx<0 || idx>25 || false == disks[idx].used)
+	{
+		ReleaseMutex(mutex);
+		return 0;
+	}
 
     Disk& d = *disks[idx].disk;
-    return createEntry(d, dirname);
+    bool ret = createEntry(d, dirname);
+
+	ReleaseMutex(mutex);
+	return ret;
 }
 
 /*
@@ -158,12 +178,20 @@ brise folder
 */
 char KernelFS::deleteDir(char* dirname)
 {
+	WaitForSingleObject(mutex, INFINITE);
+
     uint8_t idx = dirname[0] - 65;
-    if (idx<0 || idx>25 || false == disks[idx].used)
-        return 0;
+	if (idx<0 || idx>25 || false == disks[idx].used)
+	{
+		ReleaseMutex(mutex);
+		return 0;
+	}
 
     Disk& d = *disks[idx].disk;
-    return deleteEntry(d, dirname);
+    bool ret = deleteEntry(d, dirname);
+
+	ReleaseMutex(mutex);
+	return ret;
 }
 
 /*
@@ -171,11 +199,16 @@ otvara n-ti Entry unutar foldera
 */
 char KernelFS::readDir(char* dirname, EntryNum n, Entry &e)
 {
+	WaitForSingleObject(mutex, INFINITE);
+
     PathParser ppath;
     parse(ppath, dirname);
     int idx = ppath.disk - 65;
-    if (idx<0 || idx>25 || false == disks[idx].used)
-        return 0;
+	if (idx<0 || idx>25 || false == disks[idx].used)
+	{
+		ReleaseMutex(mutex);
+		return 0;
+	}
 
     Disk& d = *disks[idx].disk;
     Entry dir;
@@ -189,11 +222,18 @@ char KernelFS::readDir(char* dirname, EntryNum n, Entry &e)
         {
             e = entries[n];
             delete[] entries;
+
+			ReleaseMutex(mutex);
             return 1;
         }
-        else
-            return 2;
+		else
+		{
+			ReleaseMutex(mutex);
+			return 2;
+		}
     }
+
+	ReleaseMutex(mutex);
 	return 0;
 }
 
@@ -204,84 +244,83 @@ otvara fajl ili pravi novi
 */
 File* KernelFS::open(char* fname, char mode)
 {
-    PathParser ppath;
-    parse(ppath, fname);
-    int idx = ppath.disk - 65;
-    if (idx<0 || idx>25 || false == disks[idx].used)
-        return 0;
+	WaitForSingleObject(mutex, INFINITE);
 
+	// odredi Disk
+	int idx = fname[0] - 65;    
+	if (idx<0 || idx>25 || false == disks[idx].used)
+	{
+		ReleaseMutex(mutex);
+		return 0;
+	}
     Disk& d = *disks[idx].disk;
 
-    if (d.un_mountB)
-        return 0;
+	// kreiraj objekat
+    File* f = new File();
+    f->myImpl = new KernelFile(d, mutex);
+	Entry e;
 
-    // proverava da li je vec otvaran fajl
-    bool __access = false;
-    OpenedFilesTable temp = d.filetable;
-    char* name1, *name2;
-    name1 = combine(ppath, ppath.partsNum);
-    while (temp)
-    {
-        name2 = combine(temp->file->ppath, temp->file->ppath.partsNum);
-        if (0 == strcmp(name1, name2))
-        {
-            // ranije otvoren fajl, stavi se na cekanje
-            __access = true;
-            filemt::request_file_access(temp->file->threadtable);
-            break;
-        }
-        delete[] name2;
-        temp = temp->next;
-    }
-    delete[] name1;
-
-    // otvaranje fajla
-    File* f = new File;
-    f->myImpl = new KernelFile(d);
-    Entry e;
+	// fajl nije otvoren
+	if (!isOpen(d, fname))
+	{
+		if (!doesExist(fname) && (mode == 'r' || mode == 'a'))
+		{
+			ReleaseMutex(mutex);
+			return 0;
+		}
+		else
+		{
+			d.filetable[std::string(fname)] = std::queue<HANDLE>();
+		}
+	}
+	// fajl od ranije otvoren
+	else
+	{
+		waitFile(d, std::string(fname), mutex);
+	}
     
     // READ
     if ('r' == mode)
     {
-        if(!doesExist(fname))
-            return 0;
-        getEntry(d, e, fname);
+		// dohvati fajl, ali ako ne postoji ipak - izadji
+		if (!getEntry(d, e, fname))
+		{
+			ReleaseMutex(mutex);
+			return 0;
+		}
         f->myImpl->caret = 0;
     }
     // WRITE
     else if ('w' == mode)
     {
-        // pravi novi fajl
-        // ako postoji fajl istog imena i zatvoren je -> obrisi ga TODO
-        createEntry(d, fname);
-        getEntry(d, e, fname);
+		// ako postoji, prvo ga obrisi
+		if (doesExist(fname)) deleteEntry(d, fname);
+
+		// napravi fajl
+		createEntry(d, fname, &e);
         f->myImpl->caret = 0;
     }
     // APPEND
-    else if ('a' == mode)
-    {
-        if (!doesExist(fname))
-            return 0;
-        getEntry(d, e, fname);
+	else if ('a' == mode)
+	{
+		if (!getEntry(d, e, fname))
+		{
+			ReleaseMutex(mutex);
+			return 0;
+		}
         f->myImpl->caret = e.size;
     }
     else
     {
+		ReleaseMutex(mutex);
         return 0;
     }
 
-    // povezi sa entry-jem
-    f->myImpl->entry = e;
+    f->myImpl->entry = e;				// povezi sa entry-jem
+    f->myImpl->mod = mode;				// modalitet
+    parse(f->myImpl->ppath, fname);		// path
 
-    // modalitet
-    f->myImpl->mod = mode;
-
-    // path
-    parse(f->myImpl->ppath, fname);
-
-    if (!__access)
-        filemt::register_fopen(d.filetable, f->myImpl);
-
+	ReleaseMutex(mutex);
     return f;
 }
 
@@ -290,60 +329,28 @@ brise fajl
 */
 char KernelFS::deleteFile(char* fname)
 {
-    PathParser ppath;
-    parse(ppath, fname);
-    // veoma slicno kao i brisanje foldera ali treba da je MT (tj, ne sme biti otvoren)
-    uint8_t idx = ppath.disk - 65;
-    if (idx<0 || idx>25 || false == disks[idx].used)
-        return 0;
+	WaitForSingleObject(mutex, INFINITE);
 
-    Disk& d = *disks[idx].disk;
+	PathParser ppath;
+	parse(ppath, fname);
+	// veoma slicno kao i brisanje foldera ali treba da je MT (tj, ne sme biti otvoren)
+	uint8_t idx = ppath.disk - 65;
+	if (idx<0 || idx>25 || false == disks[idx].used)
+	{
+		ReleaseMutex(mutex);
+		return 0;
+	}
 
-    OpenedFilesTable temp = d.filetable;
-    char* name1, *name2;
-    name1 = combine(ppath, ppath.partsNum);
-    while (temp)
-    {
-        name2 = combine(temp->file->ppath, temp->file->ppath.partsNum);
-        if (0 == strcmp(name1, name2))
-        {
-            // otvoren fajl
-            return 0;
-            break;
-        }
-        delete[] name2;
-        temp = temp->next;
-    }
-    delete[] name1;
+	Disk& d = *disks[idx].disk;
 
+	// proveri da li je otvoren fajl
+	if (isOpen(d, fname))
+	{
+		ReleaseMutex(mutex);
+		return 0;
+	}
+
+	ReleaseMutex(mutex);
     return deleteEntry(d, fname);
-    return 1;
 }
 
-void writefopens()
-{
-    putchar('\n');
-    for (int i = 0; i < 26; i++)
-    {
-        if (!FS::myImpl->disks[i].used)
-            continue;
-        Disk& d = *FS::myImpl->disks[i].disk;
-        printf("%c (", 'A' + i);
-        OpenedFilesTable t = d.filetable;
-        while (t)
-        {
-            Entry& _e = t->file->entry;
-            printf(" %.8s%c%.3s [", _e.name, _e.attributes == 0x01 ? '.' : '\0', _e.attributes == 0x01 ? _e.ext : "");
-            filemt::AccessSem* sem = t->file->threadtable;
-            int c = 0;
-            while (sem)
-            {
-                c++;
-                sem = sem->next;
-            }
-            printf("%d] ", c);
-            t = t->next;
-        }
-        printf(")\n");
-    }
-}

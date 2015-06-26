@@ -6,14 +6,38 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+struct Disk;
 
-#define CACHE_SIZE 5
+#define CACHE_SIZE 7
 #define BUFF_SIZE 2048
+
+//struct cache_line
+//{
+//	ClusterNo id;
+//	char* data;
+//	bool dirty;
+//	bool valid;
+//	uint8_t next;
+//
+//	cache_line()
+//		: next(0)
+//		, dirty(false)
+//		, id(~0)
+//		, data(new char[BUFF_SIZE])
+//		, valid(false)
+//	{}
+//
+//	~cache_line()
+//	{
+//		delete[] data;
+//	}
+//};
 
 struct CacheRecord
 {
     ClusterNo id;
     char* buffer;
+	bool dirty;
     CacheRecord *prev, *next;
 
     CacheRecord()
@@ -21,6 +45,7 @@ struct CacheRecord
         , next(0)
         , buffer(new char[BUFF_SIZE])
         , id(-1)
+		, dirty(false)
     {}
 
     ~CacheRecord()
@@ -31,46 +56,16 @@ struct CacheRecord
 
 struct CacheLRU
 {
+	Disk& d;
     CacheRecord* root;
     uint8_t size;
 
-    CacheLRU(uint8_t _size)
-        : size(_size)
-    {
-        root = 0;
-        for (uint8_t i = 0; i < size; i++)
-        {
-            CacheRecord* ncr = new CacheRecord;
-            if (root)
-            {
-                ncr->next = root;
-                root->prev->next = ncr;
-                ncr->prev = root->prev;
-                root->prev = ncr;
-            }
-            else
-            {
-                ncr->next = ncr;
-                ncr->prev = ncr;
-            }
-            root = ncr;
-        }
-    }
-
-    ~CacheLRU()
-    {
-        CacheRecord *temp = root, *old;
-        for (uint8_t i = 0; i < size; i++)
-        {
-            old = temp;
-            temp = temp->next;
-            delete old;
-        }
-    }
+	CacheLRU(uint8_t _size, Disk& _d);
+	~CacheLRU();
 };
 
-bool readCache(CacheLRU& _cache, ClusterNo _id, char*);
-void writeCache(CacheLRU& _cache, ClusterNo _id, const char* _buffer);
+char readCache(CacheLRU& _cache, ClusterNo _id, char*);
+char writeCache(CacheLRU& _cache, ClusterNo _id, const char* _buffer);
 void debug_write(CacheLRU& _cache);
 
 #endif

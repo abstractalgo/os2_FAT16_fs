@@ -16,13 +16,28 @@
 
 // 1 - proba
 // 2 - javni test
-// 3 - moj test
-#define APPLICATION_SETUP 1
+#define APPLICATION_SETUP 2
 
 #if (APPLICATION_SETUP == 1)
 #   define moj_main
 #elif (APPLICATION_SETUP == 2)
 #   define javni_test
-#elif (APPLICATION_SETUP == 3)
-#   define moj_test
+#	define IN_TYPE 1	// ------ INPUT -------------
+#	if (IN_TYPE==1)
+#		define IN_NAME "testovi\\ulaz.txt"
+#		define OUT_NAME "testovi\\izlaz"
+#		define OUT_EXT ".txt"
+#	elif (IN_TYPE==2)
+#		define IN_NAME "testovi\\kb80.jpg"
+#		define OUT_NAME "testovi\\_kb80"
+#		define OUT_EXT ".jpg"
+#	elif (IN_TYPE==3)
+#		define IN_NAME "testovi\\kb500.jpg"
+#		define OUT_NAME "testovi\\_kb500"
+#		define OUT_EXT ".jpg"
+	#elif (IN_TYPE==4)
+#		define IN_NAME "testovi\\kb2000.jpg"
+#		define OUT_NAME "testovi\\_kb2000"
+#		define OUT_EXT ".jpg"
+#	endif
 #endif

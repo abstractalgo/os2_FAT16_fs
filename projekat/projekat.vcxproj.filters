@@ -17,9 +17,6 @@
       <UniqueIdentifier>{9833a95a-7034-41d9-8c5b-913dffad6925}</UniqueIdentifier>
       <ParseFiles>true</ParseFiles>
     </Filter>
-    <Filter Include="test_moj">
-      <UniqueIdentifier>{22c883fe-27dd-45a9-b308-4f151a9c066c}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -64,15 +61,6 @@
     <ClCompile Include="nit3.cpp">
       <Filter>test_javni</Filter>
     </ClCompile>
-    <ClCompile Include="t_one.cpp">
-      <Filter>test_moj</Filter>
-    </ClCompile>
-    <ClCompile Include="t_two.cpp">
-      <Filter>test_moj</Filter>
-    </ClCompile>
-    <ClCompile Include="moj_test.cpp">
-      <Filter>test_moj</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="part.h">
@@ -113,9 +101,6 @@
     </ClInclude>
     <ClInclude Include="settings.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="moj_test.h">
-      <Filter>test_moj</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

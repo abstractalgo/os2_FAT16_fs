@@ -37,7 +37,7 @@ int main(){
     startTime = clock();//pocni merenje vremena
 
     {//ucitavamo ulazni fajl u bafer, da bi nit 1 i 2 mogle paralelno da citaju
-        FILE *f = fopen("ulaz.dat", "rb");
+        FILE *f = fopen(IN_NAME, "rb");
         if (f == 0){
             cout << "GRESKA: Nije nadjen ulazni fajl 'ulaz.dat' u os domacinu!" << endl;
             system("PAUSE");
@@ -68,6 +68,7 @@ int main(){
     CloseHandle(nit1);
     CloseHandle(nit2);
     CloseHandle(nit3);
+	system("PAUSE");
     return 0;
 }
 

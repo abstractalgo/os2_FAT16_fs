@@ -1,9 +1,9 @@
 #ifndef _os2_kfs_
 #define _os2_kfs_
 
+#include <Windows.h>
 #include "fs.h"
 #include "part.h"
-#include "windows.h"
 #include "newdisk.h"
 #include "file.h"
 #include "kernel_file.h"
@@ -22,6 +22,8 @@ public:
         {}
     } disks[26];
 
+	HANDLE mutex;
+
     KernelFS();
 	~KernelFS();
 
@@ -39,7 +41,5 @@ public:
 
 	friend class FS;
 };
-
-void writefopens();
 
 #endif

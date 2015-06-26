@@ -1,6 +1,7 @@
 #ifndef _newdisk_h_
 #define _newdisk_h_
 
+#include <Windows.h>
 #include "part.h"
 #include <stdio.h>
 #include <string.h>
@@ -10,10 +11,15 @@
 #include "fs.h"
 #include "pathparser.h"
 #include "filemt.h"
+// mt
+#include <vector>
+#include <queue>
+#include <map>
+#include <string>
 
 #define SOCL sizeof(ClusterNo)
 
-#define USE_CACHE
+//#define USE_CACHE
 
 struct Disk
 {
@@ -36,15 +42,19 @@ struct Disk
     // cache
     CacheLRU cache;
 
-    // opened files
-    filemt::OpenedFile* filetable;
-    Semaphore un_mountS;
-    bool un_mountB;
+    // mt
+    std::map<std::string, std::queue<HANDLE>> filetable;
+	HANDLE unmountMutex;
+	bool unmountRequest;
+	HANDLE formatMutex;
+	bool formatRequest;
 
     Disk(Partition* _p)
-        : cache(CACHE_SIZE)
-        , un_mountS(CreateSemaphore(0,0,1,0))
-        , un_mountB(false)
+        : cache(CACHE_SIZE, *this)
+        , unmountMutex(CreateMutex(NULL, FALSE, NULL))
+        , unmountRequest(false)
+		, formatMutex(CreateMutex(NULL, FALSE, NULL))
+		, formatRequest(false)
     {
         char w_buffer[2048];
         ClusterNo* buffer = (ClusterNo*)w_buffer;
@@ -58,9 +68,9 @@ struct Disk
 
         // caching entire FAT table
         FAT = new ClusterNo[meta.fatSize];
-        uint16_t FATClsCnt = (meta.fatSize + 511) / 512;
-        uint16_t left = meta.fatSize;
-        for (uint16_t i = 0; i < FATClsCnt; i++)
+		ClusterNo FATClsCnt = (meta.fatSize + 511) / 512;
+		ClusterNo left = meta.fatSize;
+		for (ClusterNo i = 0; i < FATClsCnt; i++)
         {
             _p->readCluster(1+i, w_buffer);
             memcpy(FAT + (meta.fatSize - left), w_buffer, SOCL*(left<512 ? left : 512));
@@ -72,9 +82,6 @@ struct Disk
 
         // assign partition
         partition = _p;
-
-        // opened files
-        filetable = 0;
     }
 
     ~Disk();
@@ -87,10 +94,14 @@ ClusterNo allocate(Disk& _d);
 ClusterNo offset(Disk& _d);
 
 // managment-wise
-bool createEntry(Disk& _d, char* _fname);                   // uradjeno
+bool createEntry(Disk& _d, char* _fname, Entry* _e=0);      // uradjeno
 bool getEntry(Disk& _d, Entry& _e, char* _fname);           // uradjeno
 bool deleteEntry(Disk& _d, char* _path);                    // uradjeno
-void listDir(Disk& _d, Entry& _dir, Entry *& _entries);     // uradjeno
+void listDir(Disk& _d, Entry& _dir, Entry * _entries);     // uradjeno
+
+bool isOpen(Disk& _d, const char* _fname);
+void waitFile(Disk& _d, std::string& _file, HANDLE mutex);
+bool closeFile(Disk& _d, KernelFile* _file);
 
 // debug
 void tree(Disk& _d, bool info=true);
