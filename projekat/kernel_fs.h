@@ -7,39 +7,38 @@
 #include "newdisk.h"
 #include "file.h"
 #include "kernel_file.h"
-#include "filemt.h"
 
 class KernelFS
 {
-public:
     struct DiskDesc
     {
         Disk* disk;
         bool used;
         DiskDesc()
             : used(false)
-            , disk(0)
+            , disk(NULL)
         {}
     } disks[26];
 
-	HANDLE mutex;
+    HANDLE mutex;
 
+    char mount(Partition* partition);
+    char unmount(char part);
+    char format(char part);
+
+    char doesExist(char* fname);
+    File* open(char* fname, char mode);
+    char deleteFile(char* fname);
+
+    char createDir(char* dirname);
+    char deleteDir(char* dirname);
+    char readDir(char* dirname, EntryNum n, Entry &e);
+
+    friend class FS;
+
+public:
     KernelFS();
-	~KernelFS();
-
-	char mount(Partition* partition);                   // uradjeno
-	char unmount(char part);                            // uradjeno (bez MT)
-	char format(char part);                             // uradjeno (bez MT)
-
-	char doesExist(char* fname);                        // uradjeno
-	File* open(char* fname, char mode);                 // 
-	char deleteFile(char* fname);                       // uradjeno (bez MT)
-
-	char createDir(char* dirname);                      // uradjeno
-	char deleteDir(char* dirname);                      // uradjeno
-	char readDir(char* dirname, EntryNum n, Entry &e);  // uradjeno
-
-	friend class FS;
+    ~KernelFS();
 };
 
 #endif

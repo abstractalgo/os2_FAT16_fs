@@ -43,12 +43,6 @@
     <ClCompile Include="cache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="allocator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="filemt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="nit1.cpp">
       <Filter>test_javni</Filter>
     </ClCompile>
@@ -87,17 +81,8 @@
     <ClInclude Include="cache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="allocator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filemt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="testprimer.h">
       <Filter>test_javni</Filter>
-    </ClInclude>
-    <ClInclude Include="semaphore.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="settings.h">
       <Filter>Header Files</Filter>

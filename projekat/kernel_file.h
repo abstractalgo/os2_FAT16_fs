@@ -4,41 +4,41 @@
 #include <stdio.h>
 #include "fs.h"
 #include "newdisk.h"
-// mt
-#include <queue>
-#include "semaphore.h"
 
 class KernelFile
 {
 public:
-    char write(BytesCnt, char* buffer);     // uradjeno
-    BytesCnt read(BytesCnt, char* buffer);  // uradjeno
-    char seek(BytesCnt);                    // uradjeno
+    char        write(BytesCnt, char* buffer);
+    BytesCnt    read(BytesCnt, char* buffer);
+    char        seek(BytesCnt);
 
-    BytesCnt filePos();                     // uradjeno
-    char eof();                             // uradjeno
-    BytesCnt getFileSize();                 // uradjeno
-    char truncate();                        //
-    ~KernelFile();                          // uradjeno (to test)
-//private:
+    BytesCnt    filePos();
+    char        eof();
+    BytesCnt    getFileSize();
+    char        truncate();        // TODO
+
+    ~KernelFile();
+private:
+    KernelFile(Disk& _d, HANDLE mutex);
 
     Entry           entry;
     unsigned long   caret;
     char            mod;
-    PathParser      ppath;
+    std::string     path;
     Disk&           d;
-	HANDLE          mutex;
+    HANDLE          mutex;
 
-	// read cache
-	char cRDb[BUFF_SIZE];
-	ClusterNo cRDi;
+    // read cache
+    char        cRDb[BUFF_SIZE];
+    ClusterNo   cRDi;
 
-	// write cache
-	char cWRb[BUFF_SIZE];
-	ClusterNo cWRi;
-	bool cWRd;
+    // write cache
+    char        cWRb[BUFF_SIZE];
+    ClusterNo   cWRi;
+    bool        cWRd;
 
     friend class FS;
     friend class KernelFS;
-    KernelFile(Disk& _d, HANDLE mutex);
+    friend bool closeFile(Disk& _d, KernelFile* _file);
+    
 };

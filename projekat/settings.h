@@ -22,22 +22,22 @@
 #   define moj_main
 #elif (APPLICATION_SETUP == 2)
 #   define javni_test
-#	define IN_TYPE 2	// ------ INPUT -------------
-#	if (IN_TYPE==1)
-#		define IN_NAME "testovi\\ulaz.txt"
-#		define OUT_NAME "testovi\\izlaz"
-#		define OUT_EXT ".txt"
-#	elif (IN_TYPE==2)
-#		define IN_NAME "testovi\\kb80.jpg"
-#		define OUT_NAME "testovi\\_kb80"
-#		define OUT_EXT ".jpg"
-#	elif (IN_TYPE==3)
-#		define IN_NAME "testovi\\kb500.jpg"
-#		define OUT_NAME "testovi\\_kb500"
-#		define OUT_EXT ".jpg"
-	#elif (IN_TYPE==4)
-#		define IN_NAME "testovi\\kb2000.jpg"
-#		define OUT_NAME "testovi\\_kb2000"
-#		define OUT_EXT ".jpg"
-#	endif
+#    define IN_TYPE 4    // ------ INPUT -------------
+#    if (IN_TYPE==1)
+#        define IN_NAME "testovi\\ulaz.txt"
+#        define OUT_NAME "testovi\\izlaz"
+#        define OUT_EXT ".txt"
+#    elif (IN_TYPE==2)
+#        define IN_NAME "testovi\\kb80.jpg"
+#        define OUT_NAME "testovi\\_kb80"
+#        define OUT_EXT ".jpg"
+#    elif (IN_TYPE==3)
+#        define IN_NAME "testovi\\kb500.jpg"
+#        define OUT_NAME "testovi\\_kb500"
+#        define OUT_EXT ".jpg"
+    #elif (IN_TYPE==4)
+#        define IN_NAME "testovi\\kb2000.jpg"
+#        define OUT_NAME "testovi\\_kb2000"
+#        define OUT_EXT ".jpg"
+#    endif
 #endif

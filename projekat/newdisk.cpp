@@ -4,16 +4,16 @@
 int readCluster(Disk& _d, ClusterNo _id, char* _buffer)
 {
 #ifdef USE_CACHE
-	// procitaj iz kesa, ako je u kesu
+    // procitaj iz kesa, ako je u kesu
     if (readCache(_d.cache, _id, _buffer))
         return 1;
 
-	// ako nije u kesu, ucitaj u kes i vrati podatak iz kesa
+    // ako nije u kesu, ucitaj u kes i vrati podatak iz kesa
     int t = _d.partition->readCluster(offset(_d)+_id, _buffer);
     writeCache(_d.cache, _id, _buffer);
     return t;
 #else
-	return _d.partition->readCluster(offset(_d) + _id, _buffer);
+    return _d.partition->readCluster(offset(_d) + _id, _buffer);
 #endif
 }
 
@@ -26,7 +26,7 @@ int writeCluster(Disk& _d, ClusterNo _id, const char* _buffer)
 #endif
 }
 
-__inline ClusterNo offset(Disk& _d)
+ClusterNo offset(Disk& _d)
 {
     return (_d.meta.fatSize + 511) / 512 + 1;
 }
@@ -97,8 +97,8 @@ bool createEntry(Disk& _d, char* _fname, Entry* _e)
             delete[] w_buffer;
         }
 
-		if (_e)
-			*_e = ent;
+        if (_e)
+            *_e = ent;
 
         // apdejtuj velicinu nadfoldera (jer je u njemu zapisana velicina parent_foldera)
         if (parent_folder.attributes == 0x03)
@@ -118,13 +118,13 @@ bool createEntry(Disk& _d, char* _fname, Entry* _e)
             ClusterNo brojKlastera = (_dir.size + 101) / 102;
             ClusterNo preostalo = brojUlaza;
             ClusterNo cid = _dir.firstCluster;
-			for (ClusterNo i = 0; i < brojKlastera; i++)
+            for (ClusterNo i = 0; i < brojKlastera; i++)
             {
                 readCluster(_d, cid, w_buffer);
                 e_buffer = (Entry*)w_buffer;
-				ClusterNo limit = preostalo < 102 ? preostalo : 102;
+                ClusterNo limit = preostalo < 102 ? preostalo : 102;
                 bool fnd = false;
-				for (ClusterNo eid = 0; eid < limit; eid++)
+                for (ClusterNo eid = 0; eid < limit; eid++)
                 {
                     if (e_buffer[eid].firstCluster == parent_folder.firstCluster)
                     {
@@ -289,13 +289,13 @@ bool deleteEntry(Disk& _d, char* _path)
             ClusterNo brojKlastera = (_dir.size + 101) / 102;
             ClusterNo preostalo = brojUlaza;
             ClusterNo cid = _dir.firstCluster;
-			for (ClusterNo i = 0; i < brojKlastera; i++)
+            for (ClusterNo i = 0; i < brojKlastera; i++)
             {
                 readCluster(_d, cid, w_buffer);
                 e_buffer = (Entry*)w_buffer;
-				ClusterNo limit = preostalo < 102 ? preostalo : 102;
+                ClusterNo limit = preostalo < 102 ? preostalo : 102;
                 bool fnd = false;
-				for (ClusterNo eid = 0; eid < limit; eid++)
+                for (ClusterNo eid = 0; eid < limit; eid++)
                 {
                     if (e_buffer[eid].firstCluster == parent_folder.firstCluster)
                     {
@@ -324,11 +324,11 @@ void listDir(Disk& _d, Entry& _dir, Entry * _entries)
     ClusterNo brojKlastera = (_dir.size + 101) / 102;
     ClusterNo preostalo = brojUlaza;
     ClusterNo cid = _dir.firstCluster;
-	for (ClusterNo i = 0; i < brojKlastera; i++)
+    for (ClusterNo i = 0; i < brojKlastera; i++)
     {
         readCluster(_d, cid, w_buffer);
-		ClusterNo limit = preostalo < 102 ? preostalo : 102;
-		for (ClusterNo eid = 0; eid < limit; eid++)
+        ClusterNo limit = preostalo < 102 ? preostalo : 102;
+        for (ClusterNo eid = 0; eid < limit; eid++)
         {
             _entries[i * 102 + eid] = e_buffer[eid];
         }
@@ -412,12 +412,12 @@ Disk::~Disk()
     partition->writeCluster(0, w_buffer);
 
     // upis FAT tabele
-	ClusterNo ccnt = (meta.fatSize + 511) / 512;
+    ClusterNo ccnt = (meta.fatSize + 511) / 512;
     ClusterNo left = meta.fatSize;
-	for (ClusterNo i = 0; i < ccnt; i++)
+    for (ClusterNo i = 0; i < ccnt; i++)
     {
         ClusterNo cpycnt = ((left > 512) ? 512 : left);
-        memcpy(buffer, FAT, cpycnt*sizeof(ClusterNo));
+        memcpy(buffer, FAT+(meta.fatSize-left), cpycnt*sizeof(ClusterNo));
         partition->writeCluster(1 + i, w_buffer);
         left -= cpycnt;
     }
@@ -430,7 +430,7 @@ Disk::~Disk()
     //}
 
     CloseHandle(unmountMutex);
-	CloseHandle(formatMutex);
+    CloseHandle(formatMutex);
 
     delete[] FAT;
 }
@@ -441,52 +441,48 @@ Disk::~Disk()
 
 bool isOpen(Disk& _d, const char* _fname)
 {
-	std::string name(_fname);
-	return (_d.filetable.find(name) != _d.filetable.end());
+    std::string name(_fname);
+    return (_d.filetable.find(name) != _d.filetable.end());
 }
 
 void waitFile(Disk& _d, std::string& fname, HANDLE mutex)
 {
-	// proveri da li je otvoren fajl
-	HANDLE s = CreateSemaphore(NULL, 0, 32, NULL);
-	_d.filetable[fname].push(s);
-	//ReleaseMutex(mutex);
-	//WaitForSingleObject(s, INFINITE);
-	SignalObjectAndWait(mutex, s, INFINITE, FALSE);
-	WaitForSingleObject(mutex, INFINITE);
-	CloseHandle(s);
+    // proveri da li je otvoren fajl
+    HANDLE s = CreateSemaphore(NULL, 0, 32, NULL);
+    _d.filetable[fname].push(s);
+    //ReleaseMutex(mutex);
+    //WaitForSingleObject(s, INFINITE);
+    SignalObjectAndWait(mutex, s, INFINITE, FALSE);
+    WaitForSingleObject(mutex, INFINITE);
+    CloseHandle(s);
 }
 
 bool closeFile(Disk& _d, KernelFile* _file)
 {
-	char *fname = combine(_file->ppath, _file->ppath.partsNum);
-	std::string name(fname);
-	delete[] fname;
+    auto it = _d.filetable.find(_file->path);
+    if (it != _d.filetable.end())
+    {
+        if (it->second.size() > 0)
+        {
+            HANDLE sem = it->second.front();
+            it->second.pop();
+            ReleaseSemaphore(sem, 1, NULL);
+        }
+        // niko ne ceka na fajl
+        else
+        {
+            // ukloni ga iz liste otvorenih fajlova
+            _d.filetable.erase(it);
+        }
+    }
 
-	auto it = _d.filetable.find(name);
-	if (it != _d.filetable.end())
-	{
-		if (it->second.size() > 0)
-		{
-			HANDLE sem = it->second.front();
-			it->second.pop();
-			ReleaseSemaphore(sem, 1, NULL);
-		}
-		// niko ne ceka na fajl
-		else
-		{
-			// ukloni ga iz liste otvorenih fajlova
-			_d.filetable.erase(it);
-		}
-	}
+    if (_d.filetable.size() == 0)
+    {
+        if (_d.formatRequest)
+            ReleaseMutex(_d.formatMutex);
+        else if (_d.unmountRequest)
+            ReleaseMutex(_d.unmountMutex);
+    }
 
-	if (_d.filetable.size() == 0)
-	{
-		if (_d.formatRequest)
-			ReleaseMutex(_d.formatMutex);
-		else if (_d.unmountRequest)
-			ReleaseMutex(_d.unmountMutex);
-	}
-
-	return true;
+    return true;
 }

@@ -3,6 +3,9 @@
 
 #include <Windows.h>
 #include "part.h"
+#include <queue>
+#include <map>
+#include <string>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,14 +13,10 @@
 #include "cache.h"
 #include "fs.h"
 #include "pathparser.h"
-#include "filemt.h"
-// mt
-#include <vector>
-#include <queue>
-#include <map>
-#include <string>
 
 #define SOCL sizeof(ClusterNo)
+
+class KernelFile;
 
 //#define USE_CACHE
 
@@ -39,22 +38,26 @@ struct Disk
     // cached FAT
     ClusterNo* FAT;
 
+#ifdef USE_CACHE
     // cache
     CacheLRU cache;
+#endif
 
     // mt
     std::map<std::string, std::queue<HANDLE>> filetable;
-	HANDLE unmountMutex;
-	bool unmountRequest;
-	HANDLE formatMutex;
-	bool formatRequest;
+    HANDLE unmountMutex;
+    bool unmountRequest;
+    HANDLE formatMutex;
+    bool formatRequest;
 
     Disk(Partition* _p)
-        : cache(CACHE_SIZE, *this)
-        , unmountMutex(CreateMutex(NULL, FALSE, NULL))
+        : unmountMutex(CreateMutex(NULL, FALSE, NULL))
         , unmountRequest(false)
-		, formatMutex(CreateMutex(NULL, FALSE, NULL))
-		, formatRequest(false)
+        , formatMutex(CreateMutex(NULL, FALSE, NULL))
+        , formatRequest(false)
+#ifdef USE_CACHE
+        , cache(CACHE_SIZE, *this)
+#endif
     {
         char w_buffer[2048];
         ClusterNo* buffer = (ClusterNo*)w_buffer;
@@ -68,17 +71,19 @@ struct Disk
 
         // caching entire FAT table
         FAT = new ClusterNo[meta.fatSize];
-		ClusterNo FATClsCnt = (meta.fatSize + 511) / 512;
-		ClusterNo left = meta.fatSize;
-		for (ClusterNo i = 0; i < FATClsCnt; i++)
+        ClusterNo FATClsCnt = (meta.fatSize + 511) / 512;
+        ClusterNo left = meta.fatSize;
+        for (ClusterNo i = 0; i < FATClsCnt; i++)
         {
             _p->readCluster(1+i, w_buffer);
             memcpy(FAT + (meta.fatSize - left), w_buffer, SOCL*(left<512 ? left : 512));
             left -= 512;
         }
 
+#ifdef USE_CACHE
         // caching some data
         // TODO
+#endif
 
         // assign partition
         partition = _p;
@@ -106,6 +111,5 @@ bool closeFile(Disk& _d, KernelFile* _file);
 // debug
 void tree(Disk& _d, bool info=true);
 bool matchName(Entry& e, char* name);
-
 
 #endif

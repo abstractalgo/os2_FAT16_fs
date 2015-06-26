@@ -6,21 +6,21 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
     ClusterNo cid = entry.firstCluster;
 
     // alociraj nov prostor ako treba mesta
-	ClusterNo ccnt = (entry.size + 2047) / 2048;
-	if (ccnt == 0) ccnt = 1;
+    ClusterNo ccnt = (entry.size + 2047) / 2048;
+    if (ccnt == 0) ccnt = 1;
     while (d.FAT[cid] != 0)
     {
         cid = d.FAT[cid];
     }
-	ClusterNo diff = 0;
+    ClusterNo diff = 0;
     if (cnt > ccnt * 2048 - caret)
     {
-		diff = cnt - (ccnt * 2048 - caret);
-		ClusterNo ccnt = (diff + 2047) / 2048;
+        diff = cnt - (ccnt * 2048 - caret);
+        ClusterNo ccnt = (diff + 2047) / 2048;
 
-		WaitForSingleObject(mutex, INFINITE);
-		
-		for (ClusterNo i = 0; i < ccnt; i++)
+        WaitForSingleObject(mutex, INFINITE);
+        
+        for (ClusterNo i = 0; i < ccnt; i++)
         {
             ClusterNo nc = allocate(d);
             d.FAT[cid] = nc;
@@ -28,7 +28,7 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
             cid = nc;
         }
 
-		ReleaseMutex(mutex);
+        ReleaseMutex(mutex);
     }
 
     // dodji do odgovarajuceg klastera gde je caret
@@ -43,43 +43,45 @@ char KernelFile::write(BytesCnt cnt, char* buffer)
         _start = (_start + _cnt) % 2048;
         _cnt = (left + _start > 2048) ? (2048-_start) : (left);
 
-		// upis manje od celog klastera
-		if (_cnt < 2048)
-		{
-			if (cid != cWRi)
-			{
-				if (cWRd)
-					writeCluster(d, cWRi, cWRb);
-				readCluster(d, cid, cWRb);
-				cWRd = false;
-				cWRi = cid;
-			}
-			memcpy(cWRb + _start, buffer + (cnt - left), _cnt);
-			cWRd = true;
-		}
-		// upis tacno celog klastera
-		else
-		{
-			writeCluster(d, cid, buffer + (cnt - left));
-			cWRi = ~0;
-			cWRd = false;
-		}
+        // upis manje od celog klastera
+        if (_cnt < 2048)
+        {
+            if (cid != cWRi)
+            {
+                if (cWRd)
+                    writeCluster(d, cWRi, cWRb);
+                readCluster(d, cid, cWRb);
+                cWRd = false;
+                cWRi = cid;
+            }
+            memcpy(cWRb + _start, buffer + (cnt - left), _cnt);
+            cWRd = true;
+        }
+        // upis tacno celog klastera
+        else
+        {
+            writeCluster(d, cid, buffer + (cnt - left));
+            cWRi = ~0;
+            cWRd = false;
+        }
 
         cid = d.FAT[cid];
         left -= _cnt;
     }
 
     // uvecaj
-	caret += cnt;
-	entry.size = (entry.size < caret) ? caret : entry.size;
+    caret += cnt;
+    entry.size = (entry.size < caret) ? caret : entry.size;
     return 1;
 }
+
+extern char p1;
 
 BytesCnt KernelFile::read(BytesCnt cnt, char* buffer)
 {
     // dodji do odgovarajuceg klastera gde je caret
     ClusterNo cid = entry.firstCluster;
-	{ BytesCnt _ = caret; while (_ >= 2048) { _ -= 2048; cid = d.FAT[cid]; } }
+    { BytesCnt _ = caret; while (_ >= 2048) { _ -= 2048; cid = d.FAT[cid]; } }
 
     // upisi preostalo
     BytesCnt left = cnt > entry.size - caret ? entry.size - caret : cnt;
@@ -87,19 +89,17 @@ BytesCnt KernelFile::read(BytesCnt cnt, char* buffer)
     BytesCnt _start = caret, _cnt = 0;
     while (left > 0)
     {
-		// racunaj offset-e
+        // racunaj offset-e
         _start = (_start + _cnt) % 2048;
         _cnt = (left + _start > 2048) ? (2048-_start) : (left);
 
-		// ako nije vec ucitan klaster
-		if (cid != cRDi)
-		{
-			readCluster(d, cid, cRDb);
-			cRDi = cid;
-		}
-
-		//readCluster(d, cid, cRDb);
-		memcpy(buffer + (read - left), cRDb + _start, _cnt);
+        // ako nije vec ucitan klaster
+        if (cid != cRDi)
+        {
+            readCluster(d, cid, cRDb);
+            cRDi = cid;
+        }
+        memcpy(buffer + (read - left), cRDb + _start, _cnt);
 
         cid = d.FAT[cid];
         left -= _cnt;
@@ -112,7 +112,7 @@ BytesCnt KernelFile::read(BytesCnt cnt, char* buffer)
 
 char KernelFile::seek(BytesCnt cnt)
 {
-    if (entry.size <= cnt)
+    if (entry.size < cnt)
         return 0;
 
     caret = cnt;
@@ -140,51 +140,45 @@ BytesCnt KernelFile::getFileSize()
 char KernelFile::truncate()
 {
     // dodji do klaster od kog treba oslobadjati
-	ClusterNo cid = entry.firstCluster;
-	ClusterNo pid = 0;
-	{
-		BytesCnt _ = caret;
-		while (_ > 2048)
-		{
-			_ -= 2048;
-			cid = d.FAT[cid];
-		}
-		
-		if (caret % 2048 != 0)
-		{
-			pid = cid;
-			cid = d.FAT[cid];
-		}
-		d.FAT[pid] = 0;
-	}
-	
-	// ako treba da oslobodi nesto
-	if (cid != 0)
-	{
-		ClusterNo oldFR = d.meta.freeNode;
-		d.meta.freeNode = cid;
-		while (d.FAT[cid] != 0)
-			cid = d.FAT[cid];
-		d.FAT[cid] = oldFR;
-	}
-		
-	// promeni velicinu
-	entry.size = caret;
-	
+    ClusterNo cid = entry.firstCluster;
+    ClusterNo pid = 0;
+    {
+        BytesCnt _ = caret;
+        while (_ >= 2048)
+        {
+            _ -= 2048;
+            cid = d.FAT[cid];
+        }
+    }
+
+    cid = d.FAT[cid];
+    
+    // ako treba da oslobodi nesto
+    if (cid != 0)
+    {
+        ClusterNo oldFR = d.meta.freeNode;
+        d.meta.freeNode = cid;
+        while (d.FAT[cid] != 0)
+            cid = d.FAT[cid];
+        d.FAT[cid] = oldFR;
+    }
+        
+    // promeni velicinu
+    entry.size = caret;
+    
     return 0;
 }
-
-extern char p1;
 
 KernelFile::~KernelFile()
 {
     // upis entry-ja nazad
-	WaitForSingleObject(mutex, INFINITE);
+    WaitForSingleObject(mutex, INFINITE);
 
-	if (cWRd) writeCluster(d, cWRi, cWRb);
-	
+    if (cWRd) writeCluster(d, cWRi, cWRb);
+    
     Entry dir;
-    getEntry(d, dir, combine(ppath, ppath.partsNum - 1));
+    std::string parentPath = path.substr(0, path.find_last_of("\\"));
+    getEntry(d, dir, (char*)parentPath.c_str());
     Entry* ents = new Entry[dir.size];
     listDir(d, dir, ents);
 
@@ -204,7 +198,7 @@ KernelFile::~KernelFile()
     ClusterNo cid = dir.firstCluster;
     {
         //uint16_t _ = idx;
-		while (idx>102)
+        while (idx>102)
         {
             idx -= 102;
             cid = d.FAT[cid];
@@ -216,20 +210,18 @@ KernelFile::~KernelFile()
     e_buffer[idx] = entry;
     writeCluster(d, cid, w_buffer);
 
-	// zatvaranje fajla
-	closeFile(d, this);
+    // zatvaranje fajla
+    closeFile(d, this);
 
-	ReleaseMutex(mutex);    
+    ReleaseMutex(mutex);    
 }
-
-// private
 
 KernelFile::KernelFile(Disk& _d, HANDLE mutex)
     : caret(0)
     , d(_d)
-	, mutex(mutex)
-	, cRDi(~0)
-	, cWRi(~0)
-	, cWRd(false)
+    , mutex(mutex)
+    , cRDi(~0)
+    , cWRi(~0)
+    , cWRd(false)
 {
 }
