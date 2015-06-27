@@ -1,6 +1,4 @@
 # os2_FAT_fs
-OS2 FAT16 file system
+FAT16 file system <a href="http://os.etf.bg.ac.rs/OS2/index.htm">IR3OS2</a> course assignment
 
-IR3OS2 course assignment (<a href="http://os.etf.bg.ac.rs/OS2/index.htm">page</a>)
-
-done by Dragan Okanovic 2012/097
+student: Dragan Okanovic 2012/097
