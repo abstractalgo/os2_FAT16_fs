@@ -1,5 +1,5 @@
 #include "cache.h"
-#include "newdisk.h"
+#include "disk.h"
 
 char readCache(CacheLRU& _cache, ClusterNo _id, char* _buffer)
 {

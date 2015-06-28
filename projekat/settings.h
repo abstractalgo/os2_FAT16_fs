@@ -22,7 +22,7 @@
 #   define moj_main
 #elif (APPLICATION_SETUP == 2)
 #   define javni_test
-#    define IN_TYPE 4    // ------ INPUT -------------
+#    define IN_TYPE 3    // ------ INPUT -------------
 #    if (IN_TYPE==1)
 #        define IN_NAME "testovi\\ulaz.txt"
 #        define OUT_NAME "testovi\\izlaz"

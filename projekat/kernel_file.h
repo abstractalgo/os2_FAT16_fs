@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <stdio.h>
 #include "fs.h"
-#include "newdisk.h"
+#include "disk.h"
 
 class KernelFile
 {

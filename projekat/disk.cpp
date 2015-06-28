@@ -1,4 +1,4 @@
-#include "newdisk.h"
+#include "disk.h"
 #include "kernel_file.h"
 
 int readCluster(Disk& _d, ClusterNo _id, char* _buffer)
@@ -51,7 +51,10 @@ bool createEntry(Disk& _d, char* _fname, Entry* _e)
     Entry parent_folder;
 
     // nadji folder gde treba napraviti novi entry
-    if (getEntry(_d, parent_folder, combine(ppath, ppath.partsNum - 1)))
+    char* parent_path = combine(ppath, ppath.partsNum - 1);
+    bool tempres = getEntry(_d, parent_folder, parent_path);
+    delete[] parent_path;
+    if (tempres)
     {
         // napravi novi entry
         Entry ent;
@@ -109,7 +112,9 @@ bool createEntry(Disk& _d, char* _fname, Entry* _e)
         {
             // nadji nad folder, za promeni velicine
             Entry _dir;
-            getEntry(_d, _dir, combine(ppath, ppath.partsNum - 2));
+            char* temppath = combine(ppath, ppath.partsNum - 2);
+            getEntry(_d, _dir, temppath);
+            delete[] temppath;
             char w_buffer[2048];
             Entry* e_buffer = (Entry*)w_buffer;
 
@@ -204,7 +209,10 @@ bool deleteEntry(Disk& _d, char* _path)
     Entry ent;
 
     // nadji parent folder
-    if (getEntry(_d, parent_folder, combine(ppath, ppath.partsNum - 1)))
+    char* temppath = combine(ppath, ppath.partsNum - 1);
+    bool tempres = getEntry(_d, parent_folder, temppath);
+    delete[] temppath;
+    if (tempres)
     {
         Entry* entries = new Entry[parent_folder.size];
         listDir(_d, parent_folder, entries);
@@ -280,7 +288,9 @@ bool deleteEntry(Disk& _d, char* _path)
         {
             // nadji nad folder, za promeni velicine
             Entry _dir;
-            getEntry(_d, _dir, combine(ppath, ppath.partsNum - 2));
+            char* temppath = combine(ppath, ppath.partsNum - 2);
+            getEntry(_d, _dir, temppath);
+            delete[] temppath;
             char w_buffer[2048];
             Entry* e_buffer = (Entry*)w_buffer;
 

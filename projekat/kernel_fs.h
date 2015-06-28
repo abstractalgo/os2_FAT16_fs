@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include "fs.h"
 #include "part.h"
-#include "newdisk.h"
+#include "disk.h"
 #include "file.h"
 #include "kernel_file.h"
 

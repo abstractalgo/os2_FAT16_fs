@@ -70,7 +70,7 @@
     <ClCompile Include="kernel_file.cpp" />
     <ClCompile Include="kernel_fs.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="newdisk.cpp" />
+    <ClCompile Include="disk.cpp" />
     <ClCompile Include="nit1.cpp" />
     <ClCompile Include="nit2.cpp" />
     <ClCompile Include="nit3.cpp" />
@@ -83,7 +83,7 @@
     <ClInclude Include="fs.h" />
     <ClInclude Include="kernel_file.h" />
     <ClInclude Include="kernel_fs.h" />
-    <ClInclude Include="newdisk.h" />
+    <ClInclude Include="disk.h" />
     <ClInclude Include="part.h" />
     <ClInclude Include="pathparser.h" />
     <ClInclude Include="settings.h" />
